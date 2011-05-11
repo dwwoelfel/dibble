@@ -1,18 +1,43 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+"""
+"""
+import datetime
+from .operations import IncrementMixin
 
 
+class FieldMeta(type):
+    def __call__(cls, *arg, **kw):
+        if 'model' in kw:
+            print 'call:', cls, arg, kw
+            return type.__call__(cls, *arg, **kw)
+
+        return UnboundField(cls, *arg, **kw)
+
+
+class UnboundField(object):
+    def __init__(self, field_class, *arg, **kw):
+        self.field_class = field_class
+        self.arg = arg
+        self.kw = kw
+
+    def bind(self, model):
+        return self.field_class(model=model, *self.arg, **self.kw)
 
 
 class Field(object):
-    pass
+    __metaclass__ = FieldMeta
+
+    def __init__(self, name, default=None, model=None):
+        self.name = name
+        self.model = model
+        self.default = default
 
 
 class Bool(Field):
     pass
 
 
-class Int(Field, int):
+class Int(Field, IncrementMixin, int):
     pass
 
 
@@ -36,7 +61,7 @@ class Dict(Field, dict):
     pass
 
 
-class DateTime(Field, datetime):
+class DateTime(Field, datetime.datetime):
     pass
 
 
@@ -48,7 +73,7 @@ FIELDS = {
         unicode: Unicode,
         list: List,
         dict: Dict,
-        datetime: DateTime
+        datetime.datetime: DateTime
         }
 
 
