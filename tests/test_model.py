@@ -28,3 +28,42 @@ def test_initialization():
     #assert isinstance(m.xdatetime, dibble.fields.DateTime)
 
 
+def test_inheritance():
+    class InheritedModel(SimpleModel):
+        xbool = unicode
+        xint = unicode
+        xfloat = unicode
+        xbytes = unicode
+        xunicode = bool
+        xlist = unicode
+        xdict = unicode
+        #xdatetime = unicode
+
+        ybool = bool
+        yint = int
+        yfloat = float
+        ybytes = bytes
+        yunicode = unicode
+        ylist = list
+        ydict = dict
+        #ydatetime = datetime
+
+
+    m = InheritedModel()
+    assert isinstance(m.xbool, dibble.fields.Unicode)
+    assert isinstance(m.xint, dibble.fields.Unicode)
+    assert isinstance(m.xfloat, dibble.fields.Unicode)
+    assert isinstance(m.xbytes, dibble.fields.Unicode)
+    assert isinstance(m.xunicode, dibble.fields.Bool)
+    assert isinstance(m.xlist, dibble.fields.Unicode)
+    assert isinstance(m.xdict, dibble.fields.Unicode)
+    #assert isinstance(m.xdatetime, dibble.fields.Unicode)
+
+    assert isinstance(m.ybool, dibble.fields.Bool)
+    assert isinstance(m.yint, dibble.fields.Int)
+    assert isinstance(m.yfloat, dibble.fields.Float)
+    assert isinstance(m.ybytes, dibble.fields.Bytes)
+    assert isinstance(m.yunicode, dibble.fields.Unicode)
+    assert isinstance(m.ylist, dibble.fields.List)
+    assert isinstance(m.ydict, dibble.fields.Dict)
+    #assert isinstance(m.ydatetime, dibble.fields.DateTime)
