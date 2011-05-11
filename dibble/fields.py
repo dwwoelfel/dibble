@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
-
-
+from datetime import datetime
 
 
 
@@ -10,11 +8,11 @@ class Field(object):
     pass
 
 
-class Boolean(Field):
+class Bool(Field):
     pass
 
 
-class Integer(Field, int):
+class Int(Field, int):
     pass
 
 
@@ -34,23 +32,22 @@ class List(Field, list):
     pass
 
 
-class Document(Field, dict):
+class Dict(Field, dict):
     pass
 
 
-class DateTime(Field, datetime.datetime):
+class DateTime(Field, datetime):
     pass
 
 
 FIELDS = {
-        bool: Boolean,
-        int: Integer,
+        bool: Bool,
+        int: Int,
         float: Float,
         bytes: Bytes,
-        str: Bytes,
         unicode: Unicode,
         list: List,
-        dict: Document,
+        dict: Dict,
         datetime: DateTime
         }
 

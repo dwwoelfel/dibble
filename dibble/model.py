@@ -42,3 +42,5 @@ class ModelBase(object):
         print 'ModelBase', cls
 
 
+class Model(ModelBase):
+    pass
