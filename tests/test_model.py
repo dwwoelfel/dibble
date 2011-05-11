@@ -28,3 +28,9 @@ def test_initialization():
     #assert isinstance(m.xdatetime, dibble.fields.DateTime)
 
 
+def test_update():
+    class TestModel(dibble.model.Model):
+        counter = int
+
+    m = TestModel()
+    m.counter.inc(1)
