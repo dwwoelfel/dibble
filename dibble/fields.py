@@ -22,7 +22,7 @@ class Float(Field, float):
     pass
 
 
-class Binary(Field, bytes):
+class Bytes(Field, bytes):
     pass
 
 
@@ -46,8 +46,8 @@ FIELDS = {
         bool: Boolean,
         int: Integer,
         float: Float,
-        bytes: Binary,
-        str: Binary,
+        bytes: Bytes,
+        str: Bytes,
         unicode: Unicode,
         list: List,
         dict: Document,
