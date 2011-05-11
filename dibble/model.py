@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from . import fields
+from .update import Update
 
 
 def public_attrs(attrs):
@@ -24,10 +25,10 @@ class ModelMeta(type):
                 pass
 
             elif default is undefined:
-                attrs[k] = a()
+                attrs[k] = a(k)
 
             else:
-                attrs[k] = a(default)
+                attrs[k] = a(k, default)
 
         instance = type.__new__(cls, name, bases, attrs)
 
@@ -37,9 +38,15 @@ class ModelMeta(type):
 class ModelBase(object):
     __metaclass__ = ModelMeta
 
-    @classmethod
-    def field_wrapper(cls):
-        print 'ModelBase', cls
+    def __init__(self):
+        for k in dir(self):
+            v = getattr(self, k)
+
+            if isinstance(v, fields.UnboundField):
+                bound = v.bind(self)
+                setattr(self, k, bound)
+
+        self.update = Update()
 
 
 class Model(ModelBase):

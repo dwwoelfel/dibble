@@ -67,3 +67,11 @@ def test_inheritance():
     assert isinstance(m.ylist, dibble.fields.List)
     assert isinstance(m.ydict, dibble.fields.Dict)
     #assert isinstance(m.ydatetime, dibble.fields.DateTime)
+
+
+def test_update():
+    class TestModel(dibble.model.Model):
+        counter = int
+
+    m = TestModel()
+    m.counter.inc(1)
