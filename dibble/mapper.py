@@ -17,7 +17,7 @@ class ModelCursor(PymongoCursor):
     def next(self):
         doc = super(ModelCursor, self).next()
 
-        return self.model(doc.to_dict())
+        return self.model(doc)
 
 
 class ModelMapper(object):

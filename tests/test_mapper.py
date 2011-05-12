@@ -58,7 +58,25 @@ def test_modelmapper_save_and_find_one():
 
 
 @with_setup(setup_db)
-def test_find():
+def test_find_generator():
+    users = get_mapper()
+
+    dummy_user = {'name': 'test'}
+    users.save(dummy_user)
+
+    cursor = users.find({'name': dummy_user['name']})
+
+    eq_(cursor.count(), 1)
+
+    db_user = list(cursor)[0]
+
+    eq_(db_user.name.value, dummy_user['name'])
+    eq_(db_user['name'], dummy_user['name'])
+
+
+
+@with_setup(setup_db)
+def test_find_getitem():
     users = get_mapper()
 
     dummy_user = {'name': 'test'}
