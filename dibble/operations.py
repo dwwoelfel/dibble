@@ -3,9 +3,16 @@
 """
 
 
+class SetMixin(object):
+    def set(self, value):
+        self.model.update.set(self.name, value)
+        self.value = value
+
+
 class IncrementMixin(object):
     def inc(self, increment):
         self.model.update.inc(self.name, increment)
+        self.value += increment
 
 
 class RenameMixin(object):
