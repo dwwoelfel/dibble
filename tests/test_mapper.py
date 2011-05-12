@@ -17,6 +17,12 @@ def get_db():
     return con[DBNAME]
 
 
+def get_mapper():
+    db = get_db()
+
+    return ModelMapper(UserModel, db.user)
+
+
 def setup_db():
     db = get_db()
     db.connection.drop_database(DBNAME)
@@ -24,8 +30,7 @@ def setup_db():
 
 @with_setup(setup_db)
 def test_modelmapper():
-    db = get_db()
-    users = ModelMapper(UserModel, db.user)
+    users = get_mapper()
 
     assert users.count() == 0
 

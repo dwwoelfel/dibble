@@ -4,6 +4,10 @@ from . import fields
 from .update import Update
 
 
+class ModelError(Exception): pass
+class UnboundModelError(ModelError): pass
+
+
 def public_attrs(attrs):
     return [x for x in attrs.items() if not x[0].startswith('__')]
 
@@ -38,7 +42,14 @@ class ModelMeta(type):
 class ModelBase(object):
     __metaclass__ = ModelMeta
 
-    def __init__(self):
+    def __init__(self, *arg, **kw):
+        self._update = Update()
+        self._fields = {}
+        self._mapper = None
+
+        data = dict(*arg, **kw)
+        # TODO: set values
+
         for k in dir(self):
             v = getattr(self, k)
 
@@ -46,7 +57,16 @@ class ModelBase(object):
                 bound = v.bind(self)
                 setattr(self, k, bound)
 
-        self.update = Update()
+
+    def bind(self, mapper):
+        self._mapper = mapper
+
+
+    def save(self, *arg, **kw):
+        if not self._mapper:
+            raise UnboundModelError()
+
+        return self._mapper.save(self, *arg, **kw)
 
 
 
