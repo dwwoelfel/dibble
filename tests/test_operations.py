@@ -68,3 +68,14 @@ def test_unset():
 
     # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
     #assert not hasattr(m, 'counter')
+
+
+def test_push():
+    class PushTestModel(dibble.model.Model):
+        tags = dibble.fields.Field()
+
+    m = PushTestModel()
+    m.tags.push('fumm')
+
+    eq_(dict(m._update), {'$push': {'tags': 'fumm'}})
+    eq_(m.tags.value, ['fumm'])

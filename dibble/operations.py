@@ -54,3 +54,14 @@ class UnsetMixin(object):
 
         else:
             raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))
+
+
+class PushMixin(object):
+    def push(self, value):
+        if self.defined:
+            self.value.append(value)
+
+        else:
+            self.value = [value]
+
+        self.model._update.push(self.name, value)
