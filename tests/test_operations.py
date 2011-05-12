@@ -12,7 +12,7 @@ def test_set():
     m = TestModel()
     m.counter.set(2)
 
-    eq_(dict(m.update), {'$set': {'counter': 2}})
+    eq_(dict(m._update), {'$set': {'counter': 2}})
     eq_(m.counter.value, 2)
 
 
@@ -20,7 +20,7 @@ def test_increment():
     m = TestModel()
     m.counter.inc(1)
 
-    eq_(dict(m.update), {'$inc': {'counter': 1}})
+    eq_(dict(m._update), {'$inc': {'counter': 1}})
     eq_(m.counter.value, 2)
 
 
