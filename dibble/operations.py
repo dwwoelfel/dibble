@@ -95,3 +95,15 @@ class AddToSetMixin(object):
                 self.value.append(value)
 
         self.model._update.addToSet(self.name, value)
+
+
+class PopMixin(object):
+    def pop(self, first=False):
+        if first:
+            self.value.pop(0)
+
+        else:
+            self.value.pop()
+
+        self.model._update.pop(self.name, first)
+

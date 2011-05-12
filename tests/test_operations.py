@@ -9,7 +9,7 @@ class TestModel(dibble.model.Model):
     counter = dibble.fields.Field(default=1)
 
 
-class PushTestModel(dibble.model.Model):
+class ListFieldTestModel(dibble.model.Model):
     tags = dibble.fields.Field()
 
 
@@ -75,13 +75,13 @@ def test_unset():
 
 
 def test_push():
-    m = PushTestModel()
+    m = ListFieldTestModel()
     m.tags.push('fumm')
 
     eq_(dict(m._update), {'$push': {'tags': 'fumm'}})
     eq_(m.tags.value, ['fumm'])
 
-    m = PushTestModel(tags=['foo', 'bar'])
+    m = ListFieldTestModel(tags=['foo', 'bar'])
     m.tags.push('baz')
 
     eq_(dict(m._update), {'$push': {'tags': 'baz'}})
@@ -89,13 +89,13 @@ def test_push():
 
 
 def test_push_all():
-    m = PushTestModel()
+    m = ListFieldTestModel()
     m.tags.push_all(['fumm', 'fnorb'])
 
     eq_(dict(m._update), {'$pushAll': {'tags': ['fumm', 'fnorb']}})
     eq_(m.tags.value, ['fumm', 'fnorb'])
 
-    m = PushTestModel(tags=['foo'])
+    m = ListFieldTestModel(tags=['foo'])
     m.tags.push_all(['bar', 'baz'])
 
     eq_(dict(m._update), {'$pushAll': {'tags': ['bar', 'baz']}})
@@ -103,20 +103,34 @@ def test_push_all():
 
 
 def test_add_to_set():
-    m = PushTestModel(tags=['foo'])
+    m = ListFieldTestModel(tags=['foo'])
     m.tags.add_to_set('foo')
 
     eq_(dict(m._update), {'$addToSet': {'tags': 'foo'}})
     eq_(m.tags.value, ['foo'])
 
-    m = PushTestModel()
+    m = ListFieldTestModel()
     m.tags.add_to_set('foo')
 
     eq_(dict(m._update), {'$addToSet': {'tags': 'foo'}})
     eq_(m.tags.value, ['foo'])
 
-    m = PushTestModel(tags=['foo'])
+    m = ListFieldTestModel(tags=['foo'])
     m.tags.add_to_set({'$each': ['foo', 'bar', 'baz']})
 
     eq_(dict(m._update), {'$addToSet': {'tags': {'$each': ['foo', 'bar', 'baz']}}})
     eq_(m.tags.value, ['foo', 'bar', 'baz'])
+
+
+def test_pop():
+    m = ListFieldTestModel(tags=['foo', 'bar'])
+    m.tags.pop()
+
+    eq_(dict(m._update), {'$pop': {'tags': 1}})
+    eq_(m.tags.value, ['foo'])
+
+    m = ListFieldTestModel(tags=['foo', 'bar'])
+    m.tags.pop(first=True)
+
+    eq_(dict(m._update), {'$pop': {'tags': -1}})
+    eq_(m.tags.value, ['bar'])
