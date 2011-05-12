@@ -20,7 +20,7 @@ class FieldDict(dict):
 
 
 class OperatorDict(collections.defaultdict):
-    OPERATORS = ('$inc', '$rename')
+    OPERATORS = ('$inc', '$rename', '$set')
 
     def __init__(self):
         super(OperatorDict, self).__init__(FieldDict)
@@ -44,6 +44,10 @@ class Update(object):
 
     def __iter__(self):
         return self._ops.iteritems()
+
+
+    def set(self, field, value):
+        self._ops['$set'][field] = value
 
 
     def inc(self, field, increment):
