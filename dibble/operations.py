@@ -107,3 +107,13 @@ class PopMixin(object):
 
         self.model._update.pop(self.name, first)
 
+
+class PullMixin(object):
+    def pull(self, value):
+        if isinstance(value, dict):
+            raise NotImplementedError('using pull() with a match criteria is not supported')
+
+        else:
+            self.value = [x for x in self.value if x != value]
+
+        self.model._update.pull(self.name, value)

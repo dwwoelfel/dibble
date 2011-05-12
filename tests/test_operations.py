@@ -134,3 +134,23 @@ def test_pop():
 
     eq_(dict(m._update), {'$pop': {'tags': -1}})
     eq_(m.tags.value, ['bar'])
+
+
+def test_pull():
+    m = ListFieldTestModel(tags=['foo', 'bar', 'baz'])
+    m.tags.pull('bar')
+
+    eq_(dict(m._update), {'$pull': {'tags': 'bar'}})
+    eq_(m.tags.value, ['foo', 'baz'])
+
+    m = ListFieldTestModel(tags=['foo', 'bar', 'baz', 'baz', 'bar', 'baz', 'foo'])
+    m.tags.pull('baz')
+
+    eq_(dict(m._update), {'$pull': {'tags': 'baz'}})
+    eq_(m.tags.value, ['foo', 'bar', 'bar', 'foo'])
+
+
+@raises(NotImplementedError)
+def test_pull_criteria():
+    m = ListFieldTestModel(tags=['foo', 'bar', 'baz'])
+    m.tags.pull({'$nin': ['foo', 'bar']})
