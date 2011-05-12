@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 """
+undefined = object()
+
+class UnknownFieldError(KeyError): pass
+class DuplicateFieldError(KeyError): pass
 
 
 class SetMixin(object):
@@ -17,4 +21,21 @@ class IncrementMixin(object):
 
 class RenameMixin(object):
     def rename(self, new):
-        self.model._update.rename(self.name, new)
+        # TODO: this is a relatively naive implementation, extend if more is needed
+        import dibble.fields
+
+        f = getattr(self.model, self.name)
+
+        if isinstance(f, dibble.fields.Field):
+            if hasattr(self.model, new):
+                raise DuplicateFieldError('Field {0!r} is already present on Model'.format(new))
+
+            else:
+                oldname = self.name
+                delattr(self.model, self.name)
+                setattr(self.model, new, f)
+                f.name = new
+                self.model._update.rename(oldname, new)
+
+        else:
+            raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))

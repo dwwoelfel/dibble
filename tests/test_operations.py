@@ -2,6 +2,7 @@
 from nose.tools import raises, eq_
 import dibble.fields
 import dibble.model
+import dibble.operations
 
 
 class TestModel(dibble.model.Model):
@@ -31,3 +32,29 @@ def test_increment_unset():
 
     m = UnsetTestModel()
     m.counter.inc(1)
+
+
+def test_rename():
+    class RenameTestModel(dibble.model.Model):
+        field1 = dibble.fields.Field()
+
+    m = RenameTestModel()
+    f = m.field1
+    m.field1.rename('field2')
+
+    eq_(dict(m._update), {'$rename': {'field1': 'field2'}})
+    eq_(m.field2.name, 'field2')
+    assert m.field2 is f
+
+
+@raises(dibble.operations.DuplicateFieldError)
+def test_rename_errors():
+    class RenameTestModel(dibble.model.Model):
+        field1 = dibble.fields.Field()
+        field2 = dibble.fields.Field()
+
+    m = RenameTestModel()
+    m.field1.rename('field2')
+
+
+
