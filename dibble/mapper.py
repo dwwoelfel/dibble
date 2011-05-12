@@ -19,6 +19,10 @@ class ModelMapper(object):
         self.collection = collection
 
 
+    def __call__(self, *arg, **kw):
+        return self.model(*arg, **kw)
+
+
     def count(self):
         return self.collection.count()
 
