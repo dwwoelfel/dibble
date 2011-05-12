@@ -81,6 +81,12 @@ def test_push():
     eq_(dict(m._update), {'$push': {'tags': 'fumm'}})
     eq_(m.tags.value, ['fumm'])
 
+    m = PushTestModel(tags=['foo', 'bar'])
+    m.tags.push('baz')
+
+    eq_(dict(m._update), {'$push': {'tags': 'baz'}})
+    eq_(m.tags.value, ['foo', 'bar', 'baz'])
+
 
 def test_push_all():
     m = PushTestModel()
