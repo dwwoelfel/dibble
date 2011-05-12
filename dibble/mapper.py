@@ -7,6 +7,13 @@ class ModelCursor(PymongoCursor):
         super(ModelCursor, self).__init__(*arg, **kw)
         self.model = model
 
+
+    def __getitem__(self, key):
+        doc = super(ModelCursor, self).__getitem__(key)
+
+        return self.model(doc)
+
+
     def next(self):
         doc = super(ModelCursor, self).next()
 
