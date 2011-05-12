@@ -39,3 +39,18 @@ class RenameMixin(object):
 
         else:
             raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))
+
+
+class UnsetMixin(object):
+    def unset(self):
+        # TODO: this is a relatively naive implementation, extend if more is needed
+        import dibble.fields
+
+        f = getattr(self.model, self.name)
+
+        if isinstance(f, dibble.fields.Field):
+            delattr(self.model, self.name)
+            self.model._update.unset(self.name)
+
+        else:
+            raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))

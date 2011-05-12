@@ -46,6 +46,9 @@ def test_rename():
     eq_(m.field2.name, 'field2')
     assert m.field2 is f
 
+    # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
+    #assert not hasattr(m, 'field1')
+
 
 @raises(dibble.operations.DuplicateFieldError)
 def test_rename_errors():
@@ -57,4 +60,11 @@ def test_rename_errors():
     m.field1.rename('field2')
 
 
+def test_unset():
+    m = TestModel()
+    m.counter.unset()
 
+    eq_(dict(m._update), {'$unset': {'counter': 1}})
+
+    # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
+    #assert not hasattr(m, 'counter')

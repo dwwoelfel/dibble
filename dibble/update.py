@@ -20,7 +20,7 @@ class FieldDict(dict):
 
 
 class OperatorDict(collections.defaultdict):
-    OPERATORS = ('$inc', '$rename', '$set')
+    OPERATORS = ('$inc', '$rename', '$set', '$unset')
 
     def __init__(self):
         super(OperatorDict, self).__init__(FieldDict)
@@ -68,3 +68,7 @@ class Update(object):
         {'$rename': {'old': 'new'}}
         """
         self._ops['$rename'][old] = new
+
+
+    def unset(self, name):
+        self._ops['$unset'][name] = 1
