@@ -101,3 +101,22 @@ def test_push_all():
     eq_(dict(m._update), {'$pushAll': {'tags': ['bar', 'baz']}})
     eq_(m.tags.value, ['foo', 'bar', 'baz'])
 
+
+def test_add_to_set():
+    m = PushTestModel(tags=['foo'])
+    m.tags.add_to_set('foo')
+
+    eq_(dict(m._update), {'$addToSet': {'tags': 'foo'}})
+    eq_(m.tags.value, ['foo'])
+
+    m = PushTestModel()
+    m.tags.add_to_set('foo')
+
+    eq_(dict(m._update), {'$addToSet': {'tags': 'foo'}})
+    eq_(m.tags.value, ['foo'])
+
+    m = PushTestModel(tags=['foo'])
+    m.tags.add_to_set({'$each': ['foo', 'bar', 'baz']})
+
+    eq_(dict(m._update), {'$addToSet': {'tags': {'$each': ['foo', 'bar', 'baz']}}})
+    eq_(m.tags.value, ['foo', 'bar', 'baz'])

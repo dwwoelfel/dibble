@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
+import collections
+
 undefined = object()
 
 class UnknownFieldError(KeyError): pass
@@ -76,3 +78,20 @@ class PushAllMixin(object):
             self.value = [x for x in values]
 
         self.model._update.pushAll(self.name, values)
+
+
+class AddToSetMixin(object):
+    def add_to_set(self, value):
+        if not self.defined:
+            self.value = []
+
+        if isinstance(value, collections.Mapping) and ('$each' in value):
+            for v in value['$each']:
+                if not v in self.value:
+                    self.value.append(v)
+
+        else:
+            if not value in self.value:
+                self.value.append(value)
+
+        self.model._update.addToSet(self.name, value)
