@@ -154,3 +154,11 @@ def test_pull():
 def test_pull_criteria():
     m = ListFieldTestModel(tags=['foo', 'bar', 'baz'])
     m.tags.pull({'$nin': ['foo', 'bar']})
+
+
+def test_pull_all():
+    m = ListFieldTestModel(tags=['foo', 'bar', 'baz'])
+    m.tags.pull_all(['foo', 'bar'])
+
+    eq_(dict(m._update), {'$pullAll': {'tags': ['foo', 'bar']}})
+    eq_(m.tags.value, ['baz'])

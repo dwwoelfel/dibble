@@ -117,3 +117,9 @@ class PullMixin(object):
             self.value = [x for x in self.value if x != value]
 
         self.model._update.pull(self.name, value)
+
+
+class PullAllMixin(object):
+    def pull_all(self, values):
+        self.value = [x for x in self.value if (x not in values)]
+        self.model._update.pullAll(self.name, values)
