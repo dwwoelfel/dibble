@@ -31,18 +31,48 @@ def setup_db():
 
 
 @with_setup(setup_db)
-def test_modelmapper():
+def test_modelmapper_new():
     users = get_mapper()
-
-    assert users.count() == 0
-
-    dummy_user = {'name': 'test'}
-    users.save(dummy_user)
-
-    eq_( users.count(), 1)
-    eq_(users.find_one(), dummy_user)
 
     username = 'testuser'
     user = users(name=username)
 
+    eq_(user['name'], username)
     eq_(user.name.value, username)
+
+
+@with_setup(setup_db)
+def test_modelmapper_count():
+    mapper = get_mapper()
+    eq_(mapper.count(), 0)
+
+
+@with_setup(setup_db)
+def test_modelmapper_save_and_find_one():
+    users = get_mapper()
+
+    dummy_user = {'name': 'test'}
+    users.save(dummy_user)
+
+    eq_(users.count(), 1)
+
+
+@with_setup(setup_db)
+def test_find():
+    users = get_mapper()
+
+    dummy_user = {'name': 'test'}
+    users.save(dummy_user)
+
+    cursor = users.find({'name': dummy_user['name']})
+
+    eq_(cursor.count(), 1)
+
+    db_user = cursor[0]
+
+    eq_(db_user.name.value, dummy_user['name'])
+    eq_(db_user['name'], dummy_user['name'])
+
+
+
+

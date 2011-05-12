@@ -5,12 +5,12 @@ from pymongo.cursor import Cursor as PymongoCursor
 class ModelCursor(PymongoCursor):
     def __init__(self, model, *arg, **kw):
         super(ModelCursor, self).__init__(*arg, **kw)
-        self._model = model
+        self.model = model
 
     def next(self):
         doc = super(ModelCursor, self).next()
 
-        return doc
+        return self.model(doc.to_dict())
 
 
 class ModelMapper(object):
@@ -35,8 +35,12 @@ class ModelMapper(object):
 
     def find_one(self, spec=None, *arg, **kw):
         spec = spec or {}
+        doc = self.collection.find_one(spec, *arg, **kw)
 
-        return self.collection.find_one(spec, *arg, **kw)
+        if doc:
+            doc = self.model(doc)
+
+        return doc
 
 
     def save(self, doc, *arg, **kw):
