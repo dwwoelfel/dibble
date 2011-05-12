@@ -20,7 +20,8 @@ class FieldDict(dict):
 
 
 class OperatorDict(collections.defaultdict):
-    OPERATORS = ('$inc', '$rename', '$set')
+    OPERATORS = ('$inc', '$rename', '$set', '$unset', '$push', '$pushAll', '$addToSet',
+                 '$pop', '$pull', '$pullAll')
 
     def __init__(self):
         super(OperatorDict, self).__init__(FieldDict)
@@ -68,3 +69,32 @@ class Update(object):
         {'$rename': {'old': 'new'}}
         """
         self._ops['$rename'][old] = new
+
+
+    def unset(self, name):
+        self._ops['$unset'][name] = 1
+
+
+    def push(self, name, value):
+        self._ops['$push'][name] = value
+
+
+    def pushAll(self, name, values):
+        self._ops['$pushAll'][name] = values
+
+
+    def addToSet(self, name, value):
+        self._ops['$addToSet'][name] = value
+
+
+    def pop(self, name, first=False):
+        v = (-1 if first else 1)
+        self._ops['$pop'][name] = v
+
+
+    def pull(self, name, value):
+        self._ops['$pull'][name] = value
+
+
+    def pullAll(self, name, values):
+        self._ops['$pullAll'][name] = values
