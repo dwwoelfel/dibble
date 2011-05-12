@@ -9,6 +9,6 @@ def test_unbound():
 
 def test_bind():
     fakemodel = object()
-    f = dibble.fields.Field('foo')
-    bound = f.bind(fakemodel)
+    f = dibble.fields.Field()
+    bound = f.bind(name='foo', model=fakemodel)
     assert bound.model is fakemodel

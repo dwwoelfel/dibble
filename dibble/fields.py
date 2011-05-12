@@ -2,13 +2,16 @@
 """
 """
 import datetime
+from dibble.operations import SetMixin
 from .operations import IncrementMixin
+
+
+undefined = object()
 
 
 class FieldMeta(type):
     def __call__(cls, *arg, **kw):
         if 'model' in kw:
-            print 'call:', cls, arg, kw
             return type.__call__(cls, *arg, **kw)
 
         return UnboundField(cls, *arg, **kw)
@@ -20,75 +23,48 @@ class UnboundField(object):
         self.arg = arg
         self.kw = kw
 
-    def bind(self, model):
-        return self.field_class(model=model, *self.arg, **self.kw)
+    def bind(self, name, model, initial=undefined):
+        return self.field_class(name=name, model=model, initial=initial, *self.arg, **self.kw)
 
 
-class Field(object):
+class Field(SetMixin, IncrementMixin):
     __metaclass__ = FieldMeta
 
-    def __init__(self, name, default=None, model=None):
+    def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         self.name = name
         self.model = model
         self.default = default
+        self.value = (initial if initial is not undefined else default)
+
 
 
 class Bool(Field):
     pass
 
 
-class Int(Field, IncrementMixin, int):
+class Int(Field, IncrementMixin):
     pass
 
 
-class Float(Field, float):
+class Float(Field):
     pass
 
 
-class Bytes(Field, bytes):
+class Bytes(Field):
     pass
 
 
-class Unicode(Field, unicode):
+class Unicode(Field):
     pass
 
 
-class List(Field, list):
+class List(Field):
     pass
 
 
-class Dict(Field, dict):
+class Dict(Field):
     pass
 
 
-class DateTime(Field, datetime.datetime):
+class DateTime(Field):
     pass
-
-
-FIELDS = {
-        bool: Bool,
-        int: Int,
-        float: Float,
-        bytes: Bytes,
-        unicode: Unicode,
-        list: List,
-        dict: Dict,
-        datetime.datetime: DateTime
-        }
-
-
-class InvalidFieldTypeError(KeyError):
-    pass
-
-
-def field(typ):
-    if typ in FIELDS:
-        f = FIELDS[typ]
-
-    elif isinstance(typ, Field):
-        f = typ
-
-    else:
-        f = None
-
-    return f

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pymongo
 from nose import with_setup
+from dibble.fields import Field
 from dibble.mapper import ModelMapper
 from dibble.model import Model
 
@@ -8,7 +9,7 @@ DBNAME = 'dibbletest'
 
 
 class UserModel(Model):
-    name = unicode
+    name = Field()
 
 
 def get_db():
@@ -41,6 +42,6 @@ def test_modelmapper():
     assert users.find_one() == dummy_user
 
     username = 'testuser'
-    user = users(username=username)
+    user = users(name=username)
 
-    assert user.name == username
+    assert user.name.value == username
