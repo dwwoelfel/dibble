@@ -8,24 +8,34 @@ DBNAME = 'dibbletest'
 
 
 class UserModel(Model):
-    username = unicode
+    name = unicode
+
+
+def get_db():
+    con = pymongo.Connection()
+
+    return con[DBNAME]
 
 
 def setup_db():
-    con = pymongo.Connection()
-    con.drop_database(DBNAME)
+    db = get_db()
+    db.connection.drop_database(DBNAME)
 
 
 @with_setup(setup_db)
 def test_modelmapper():
-    db = pymongo.Connection()[DBNAME]
+    db = get_db()
     users = ModelMapper(UserModel, db.user)
 
     assert users.count() == 0
 
-    dummy_user = {'username': 'test'}
+    dummy_user = {'name': 'test'}
     users.save(dummy_user)
 
     assert users.count() == 1
     assert users.find_one() == dummy_user
 
+    username = 'testuser'
+    user = users(username=username)
+
+    assert user.name == username
