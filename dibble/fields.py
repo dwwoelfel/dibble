@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
-from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin)
+from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin)
 
 
 undefined = object()
@@ -25,7 +25,7 @@ class UnboundField(object):
         return self.field_class(name=name, model=model, initial=initial, *self.arg, **self.kw)
 
 
-class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin):
+class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin):
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):

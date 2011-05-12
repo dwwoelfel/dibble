@@ -9,6 +9,10 @@ class TestModel(dibble.model.Model):
     counter = dibble.fields.Field(default=1)
 
 
+class PushTestModel(dibble.model.Model):
+    tags = dibble.fields.Field()
+
+
 def test_set():
     m = TestModel()
     m.counter.set(2)
@@ -71,11 +75,23 @@ def test_unset():
 
 
 def test_push():
-    class PushTestModel(dibble.model.Model):
-        tags = dibble.fields.Field()
-
     m = PushTestModel()
     m.tags.push('fumm')
 
     eq_(dict(m._update), {'$push': {'tags': 'fumm'}})
     eq_(m.tags.value, ['fumm'])
+
+
+def test_push_all():
+    m = PushTestModel()
+    m.tags.push_all(['fumm', 'fnorb'])
+
+    eq_(dict(m._update), {'$pushAll': {'tags': ['fumm', 'fnorb']}})
+    eq_(m.tags.value, ['fumm', 'fnorb'])
+
+    m = PushTestModel(tags=['foo'])
+    m.tags.push_all(['bar', 'baz'])
+
+    eq_(dict(m._update), {'$pushAll': {'tags': ['bar', 'baz']}})
+    eq_(m.tags.value, ['foo', 'bar', 'baz'])
+

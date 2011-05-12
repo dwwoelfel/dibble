@@ -65,3 +65,14 @@ class PushMixin(object):
             self.value = [value]
 
         self.model._update.push(self.name, value)
+
+
+class PushAllMixin(object):
+    def push_all(self, values):
+        if self.defined:
+            self.value.extend(values)
+
+        else:
+            self.value = [x for x in values]
+
+        self.model._update.pushAll(self.name, values)

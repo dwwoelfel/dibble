@@ -20,7 +20,7 @@ class FieldDict(dict):
 
 
 class OperatorDict(collections.defaultdict):
-    OPERATORS = ('$inc', '$rename', '$set', '$unset', '$push')
+    OPERATORS = ('$inc', '$rename', '$set', '$unset', '$push', '$pushAll')
 
     def __init__(self):
         super(OperatorDict, self).__init__(FieldDict)
@@ -76,3 +76,7 @@ class Update(object):
 
     def push(self, name, value):
         self._ops['$push'][name] = value
+
+
+    def pushAll(self, name, values):
+        self._ops['$pushAll'][name] = values
