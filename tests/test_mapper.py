@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from nose.tools import eq_
 import pymongo
 from nose import with_setup
 from dibble.fields import Field
@@ -38,10 +39,10 @@ def test_modelmapper():
     dummy_user = {'name': 'test'}
     users.save(dummy_user)
 
-    assert users.count() == 1
-    assert users.find_one() == dummy_user
+    eq_( users.count(), 1)
+    eq_(users.find_one(), dummy_user)
 
     username = 'testuser'
     user = users(name=username)
 
-    assert user.name.value == username
+    eq_(user.name.value, username)
