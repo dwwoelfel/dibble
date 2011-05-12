@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from nose.tools import eq_
 import dibble.fields
 import dibble.model
+from nose.tools import raises, eq_, assert_in
 
 
 class SimpleModel(dibble.model.Model):
@@ -105,3 +105,28 @@ def test_default_initial():
 
     m = TestModel({'counter': 5})
     eq_(m.counter.value, 5)
+
+
+def test_iter():
+    class TestModel(dibble.model.Model):
+        a = dibble.fields.Field()
+        b = dibble.fields.Field()
+
+    m = TestModel()
+    keys = list(m)
+
+    assert_in('a', keys)
+    assert_in('b', keys)
+
+
+def test_getitem():
+    m = SimpleModel(xint=1)
+
+    eq_(m['xint'], 1)
+
+
+@raises(KeyError)
+def test_getitem_keyerror():
+    m = SimpleModel()
+    m['not_existing_key']
+

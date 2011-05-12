@@ -26,6 +26,14 @@ class ModelBase(object):
                     bound = v.bind(k, self)
 
                 setattr(self, k, bound)
+                self._fields[k] = bound
+
+    def __iter__(self):
+        return self._fields.iterkeys()
+
+
+    def __getitem__(self, key):
+        return self._fields[key].value
 
 
     def bind(self, mapper):
