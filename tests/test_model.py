@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import unittest
+from nose.tools import eq_
 import dibble.fields
 import dibble.model
-from datetime import datetime
 
 
 class SimpleModel(dibble.model.Model):
@@ -73,11 +72,11 @@ def test_update():
     m = TestModel()
     m.counter.set(1)
 
-    assert dict(m.update) == {'$set': {'counter': 1}}
+    eq_(dict(m.update), {'$set': {'counter': 1}})
 
     m.counter.inc(1)
 
-    assert dict(m.update) == {'$set': {'counter': 1}, '$inc': {'counter': 1}}
+    eq_(dict(m.update), {'$set': {'counter': 1}, '$inc': {'counter': 1}})
 
 
 
@@ -86,10 +85,10 @@ def test_initial():
         counter = dibble.fields.Field()
 
     m = TestModel(counter=5)
-    assert m.counter.value == 5
+    eq_(m.counter.value, 5)
 
     m = TestModel({'counter': 10})
-    assert m.counter.value == 10
+    eq_(m.counter.value, 10)
 
 
 def test_default():
@@ -97,7 +96,7 @@ def test_default():
         counter = dibble.fields.Field(default=100)
 
     m = TestModel()
-    assert m.counter.value == 100
+    eq_(m.counter.value, 100)
 
 
 def test_default_initial():
@@ -105,4 +104,4 @@ def test_default_initial():
         counter = dibble.fields.Field(default=100)
 
     m = TestModel({'counter': 5})
-    assert m.counter.value == 5
+    eq_(m.counter.value, 5)
