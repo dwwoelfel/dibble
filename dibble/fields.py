@@ -31,7 +31,6 @@ class Field(SetMixin, IncrementMixin):
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
-        print '__init__', {'default': default, 'name': name, 'initial': initial, 'model': model}
         self.name = name
         self.model = model
         self.default = default
