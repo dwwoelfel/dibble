@@ -124,3 +124,21 @@ def test_modelmapper_model_save():
     expected = {'logincount': 42, 'username': 'Fumm Fumm', 'usernames': ['Foo Bar']}
 
     assert_dict_contains_subset(expected, u)
+
+
+@with_setup(setup_db)
+def test_modelmapper_model_reload():
+    db = get_db()
+    users = ModelMapper(AdvancedUserModel, db.user)
+
+    user = users()
+    user.username.set('Foo Bar')
+    user.save()
+
+    users.collection.update({}, {'$set': {'username': 'Fumm Fumm'}})
+
+    user.reload()
+
+    expected = {'username': 'Fumm Fumm'}
+
+    assert_dict_contains_subset(expected, dict(user))

@@ -5,6 +5,7 @@ from .update import Update
 
 class ModelError(Exception): pass
 class UnboundModelError(ModelError): pass
+class UnsavedModelError(ModelError): pass
 class UndefinedFieldError(KeyError): pass
 
 
@@ -47,6 +48,20 @@ class ModelBase(object):
 
     def bind(self, mapper):
         self._mapper = mapper
+
+
+    def reload(self):
+        if not self._mapper:
+            raise UnboundModelError()
+
+        if not self._id.defined:
+            raise UnsavedModelError()
+
+        new = self._mapper.find_one({'_id': self._id.value})
+
+        for name, field in new._fields.items():
+            if name in self._fields:
+                self._fields[name]._reinit(field.value)
 
 
     def save(self, *arg, **kw):
