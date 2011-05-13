@@ -32,12 +32,17 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         self.name = name
         self.model = model
         self.default = default
-        self.value = (initial if initial is not undefined else default)
+        self._value = (initial if initial is not undefined else default)
 
 
     @property
     def defined(self):
         return (self.value is not undefined)
+
+
+    @property
+    def value(self):
+        return self._value
 
 
 
