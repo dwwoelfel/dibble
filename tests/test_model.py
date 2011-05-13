@@ -118,12 +118,13 @@ def test_iter():
     class TestModel(dibble.model.Model):
         a = dibble.fields.Field()
         b = dibble.fields.Field()
+        c = dibble.fields.Field()
 
-    m = TestModel()
-    keys = list(m)
+    m = TestModel(a=1, b=2)
+    values = dict(m)
 
-    assert_in('a', keys)
-    assert_in('b', keys)
+    eq_(values.keys(), ['a', 'b'])
+    eq_(values, {'a': 1, 'b': 2})
 
 
 def test_getitem():
@@ -137,3 +138,8 @@ def test_getitem_keyerror():
     m = SimpleModel()
     m['not_existing_key']
 
+
+@raises(dibble.model.UndefinedFieldError)
+def test_getitem_undefined_field():
+    m = SimpleModel()
+    m['xint']

@@ -5,6 +5,7 @@ from .update import Update
 
 class ModelError(Exception): pass
 class UnboundModelError(ModelError): pass
+class UndefinedFieldError(KeyError): pass
 
 
 class ModelBase(object):
@@ -30,7 +31,7 @@ class ModelBase(object):
     def __iter__(self):
         for name, field in self._fields.iteritems():
             if field.defined:
-                yield name, field.value
+                yield (name, field.value)
 
 
     def __getitem__(self, key):
@@ -39,7 +40,7 @@ class ModelBase(object):
         if field.defined:
             return self._fields[key].value
 
-        raise KeyError('Field {0!r} is not defined.'.format(key))
+        raise UndefinedFieldError('Field {0!r} is not defined.'.format(key))
 
 
     def bind(self, mapper):
