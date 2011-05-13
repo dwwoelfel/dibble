@@ -9,6 +9,8 @@ class UndefinedFieldError(KeyError): pass
 
 
 class ModelBase(object):
+    _id = fields.Field()
+
     def __init__(self, *arg, **kw):
         initial = dict(*arg, **kw)
         self._update = Update()
@@ -51,7 +53,21 @@ class ModelBase(object):
         if not self._mapper:
             raise UnboundModelError()
 
-        return self._mapper.save(self, *arg, **kw)
+        if self._id.defined:
+            doc = dict(self)
+            upd = dict(self._update)
+            oid = doc.get('_id', None)
+            self._mapper.update({'_id': oid}, upd, *arg, **kw)
+
+
+        else:
+            doc = dict(self)
+            oid = self._mapper.save(doc, *arg, **kw)
+            self._id._value = oid
+
+        self._update.clear()
+
+        return oid
 
 
 

@@ -33,7 +33,9 @@ class ModelMapper(object):
 
 
     def __call__(self, *arg, **kw):
-        return self.model(*arg, **kw)
+        doc = self.model(*arg, **kw)
+        doc.bind(self)
+        return doc
 
 
     def count(self):
@@ -52,8 +54,13 @@ class ModelMapper(object):
 
         if doc:
             doc = self.model(doc)
+            doc.bind(self)
 
         return doc
+
+
+    def update(self, spec, document, *arg, **kw):
+        return self.collection.update(spec, document, *arg, **kw)
 
 
     def save(self, doc, *arg, **kw):

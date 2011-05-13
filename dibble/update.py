@@ -47,6 +47,10 @@ class Update(object):
         return self._ops.iteritems()
 
 
+    def clear(self):
+        self._ops.clear()
+
+
     def set(self, field, value):
         self._ops['$set'][field] = value
 
