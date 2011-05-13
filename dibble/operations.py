@@ -10,14 +10,19 @@ class DuplicateFieldError(KeyError): pass
 
 class SetMixin(object):
     def set(self, value):
-        self.model._update.set(self.name, value)
         self._value = value
+        self.model._update.set(self.name, value)
 
 
 class IncrementMixin(object):
     def inc(self, increment):
+        if self.defined:
+            self._value += increment
+
+        else:
+            self._value = increment
+
         self.model._update.inc(self.name, increment)
-        self._value += increment
 
 
 class RenameMixin(object):

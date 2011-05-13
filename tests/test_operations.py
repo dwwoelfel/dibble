@@ -29,13 +29,15 @@ def test_increment():
     eq_(m.counter.value, 2)
 
 
-@raises(TypeError)
 def test_increment_unset():
     class UnsetTestModel(dibble.model.Model):
         counter = dibble.fields.Field()
 
     m = UnsetTestModel()
-    m.counter.inc(1)
+    m.counter.inc(42)
+
+    eq_(dict(m._update), {'$inc': {'counter': 42}})
+    eq_(m.counter.value, 42)
 
 
 def test_rename():
