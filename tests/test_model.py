@@ -126,6 +126,11 @@ def test_iter():
     eq_(values.keys(), ['a', 'b'])
     eq_(values, {'a': 1, 'b': 2})
 
+    m.c.set(3)
+    values = dict(m)
+    
+    eq_(values, {'a': 1, 'b': 2, 'c': 3})
+
 
 def test_getitem():
     m = SimpleModel(xint=1)
