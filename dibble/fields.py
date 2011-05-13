@@ -32,7 +32,7 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         self.name = name
         self.model = model
-        self.default = (default() if isinstance(default, collections.Callable) else default)
+        self._default = default
         self.initial = initial
         self._value = (initial if initial is not undefined else self.default)
 
@@ -40,6 +40,11 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     @property
     def defined(self):
         return (self._value is not undefined)
+
+
+    @property
+    def default(self):
+        return (self._default() if isinstance(self._default, collections.Callable) else self._default)
 
 
     @property
@@ -57,7 +62,7 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
 
     def reset(self):
-        self._value = self.initial
+        self._value = (self.initial if self.initial is not undefined else self.default)
         self.model._update.drop_field(self.name)
 
 

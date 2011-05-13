@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from nose.tools import eq_
+import uuid
+from nose.tools import eq_, assert_not_equal
 import dibble.fields
 import dibble.model
 
@@ -40,6 +41,19 @@ def test_field_reset():
     eq_(dict(model._update), {})
 
 
+def test_field_reset_default():
+    model = dibble.model.Model()
+    f = dibble.fields.Field(default=lambda: uuid.uuid4().hex)
+    bf = f.bind(name='foo', model=model)
+    v1 = bf.value
+
+    bf.reset()
+
+    v2 = bf.value
+
+    assert_not_equal(v1, v2)
+
+
 def test_field_reinit():
     model = dibble.model.Model()
     f = dibble.fields.Field()
@@ -58,3 +72,14 @@ def test_field_reinit():
 
     eq_(bf.value, 42)
     eq_(dict(model._update), {})
+
+
+def test_field_reinit_default_undefined():
+    model = dibble.model.Model()
+    f = dibble.fields.Field(default=42)
+    bf = f.bind(name='foo', model=model)
+
+    eq_(bf.value, 42)
+    bf._reinit(dibble.fields.undefined)
+
+    eq_(bf.value, 42)
