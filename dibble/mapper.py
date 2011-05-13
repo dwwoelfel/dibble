@@ -3,21 +3,27 @@ from pymongo.cursor import Cursor as PymongoCursor
 
 
 class ModelCursor(PymongoCursor):
-    def __init__(self, model, *arg, **kw):
+    def __init__(self, mapper, *arg, **kw):
         super(ModelCursor, self).__init__(*arg, **kw)
-        self.model = model
+        self.mapper = mapper
 
 
     def __getitem__(self, key):
         doc = super(ModelCursor, self).__getitem__(key)
 
-        return self.model(doc)
+        instance = self.mapper.model(doc)
+        instance.bind(self.mapper)
+
+        return instance
 
 
     def next(self):
         doc = super(ModelCursor, self).next()
 
-        return self.model(doc)
+        instance = self.mapper.model(doc)
+        instance.bind(self.mapper)
+
+        return instance
 
 
 class ModelMapper(object):
@@ -37,7 +43,7 @@ class ModelMapper(object):
     def find(self, spec=None, *args, **kw):
         spec = spec or {}
 
-        return ModelCursor(self.model, self.collection, *args, **kw)
+        return ModelCursor(self, self.collection, *args, **kw)
 
 
     def find_one(self, spec=None, *arg, **kw):
