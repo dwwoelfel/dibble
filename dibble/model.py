@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 from . import fields
 from .update import Update
 
@@ -29,11 +28,18 @@ class ModelBase(object):
                 self._fields[k] = bound
 
     def __iter__(self):
-        return self._fields.iterkeys()
+        for name, field in self._fields.iteritems():
+            if field.defined:
+                yield name, field.value
 
 
     def __getitem__(self, key):
-        return self._fields[key].value
+        field = self._fields[key]
+
+        if field.defined:
+            return self._fields[key].value
+
+        raise KeyError('Field {0!r} is not defined.'.format(key))
 
 
     def bind(self, mapper):
