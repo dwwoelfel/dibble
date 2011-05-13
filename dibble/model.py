@@ -63,7 +63,7 @@ class ModelBase(object):
         else:
             doc = dict(self)
             oid = self._mapper.save(doc, *arg, **kw)
-            self._id._value = oid
+            self._id._reinit(oid)
 
         self._update.clear()
 

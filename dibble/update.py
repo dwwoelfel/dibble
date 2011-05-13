@@ -51,6 +51,19 @@ class Update(object):
         self._ops.clear()
 
 
+    def drop_field(self, field):
+        empty_keys = []
+
+        for k, updates in self._ops.iteritems():
+            updates.pop(field, None)
+
+            if not updates:
+                empty_keys.append(k)
+
+        for k in empty_keys:
+            del self._ops[k]
+
+
     def set(self, field, value):
         self._ops['$set'][field] = value
 
