@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nose.tools import raises, eq_
+from nose.tools import raises, eq_, assert_false
 import dibble.fields
 import dibble.model
 import dibble.operations
@@ -29,13 +29,15 @@ def test_increment():
     eq_(m.counter.value, 2)
 
 
-@raises(TypeError)
 def test_increment_unset():
     class UnsetTestModel(dibble.model.Model):
         counter = dibble.fields.Field()
 
     m = UnsetTestModel()
-    m.counter.inc(1)
+    m.counter.inc(42)
+
+    eq_(dict(m._update), {'$inc': {'counter': 42}})
+    eq_(m.counter.value, 42)
 
 
 def test_rename():
@@ -69,9 +71,7 @@ def test_unset():
     m.counter.unset()
 
     eq_(dict(m._update), {'$unset': {'counter': 1}})
-
-    # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
-    #assert not hasattr(m, 'counter')
+    assert_false(m.counter.defined)
 
 
 def test_push():
