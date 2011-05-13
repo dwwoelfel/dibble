@@ -57,7 +57,7 @@ def test_rename():
 
 
 @raises(dibble.operations.DuplicateFieldError)
-def test_rename_errors():
+def test_rename_duplicate():
     class RenameTestModel(dibble.model.Model):
         field1 = dibble.fields.Field()
         field2 = dibble.fields.Field()
@@ -66,12 +66,34 @@ def test_rename_errors():
     m.field1.rename('field2')
 
 
+@raises(dibble.operations.UnknownFieldError)
+def test_rename_unknown():
+    class RenameTestModel(dibble.model.Model):
+        field1 = dibble.fields.Field()
+        field2 = dibble.fields.Field()
+
+    m = RenameTestModel()
+    f = dibble.fields.Field()
+    bf = f.bind(name='field3', model=m)
+
+    bf.rename('field4')
+
+
 def test_unset():
     m = TestModel()
     m.counter.unset()
 
     eq_(dict(m._update), {'$unset': {'counter': 1}})
     assert_false(m.counter.defined)
+
+
+@raises(dibble.operations.UnknownFieldError)
+def test_unset_unknown():
+    m = TestModel()
+    f = dibble.fields.Field()
+    bf = f.bind(name='unknownfield', model=m)
+
+    bf.unset()
 
 
 def test_push():

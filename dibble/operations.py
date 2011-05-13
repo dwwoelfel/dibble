@@ -30,7 +30,7 @@ class RenameMixin(object):
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
-        f = getattr(self.model, self.name)
+        f = getattr(self.model, self.name, None)
 
         if isinstance(f, dibble.fields.Field):
             if hasattr(self.model, new):
@@ -52,7 +52,7 @@ class UnsetMixin(object):
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
-        f = getattr(self.model, self.name)
+        f = getattr(self.model, self.name, None)
 
         if isinstance(f, dibble.fields.Field):
             self._value = dibble.fields.undefined

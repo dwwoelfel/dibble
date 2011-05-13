@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from nose.tools import eq_, assert_dict_contains_subset
 import pymongo
+import dibble.fields
+import dibble.model
+import dibble.mapper
 from nose import with_setup
-from dibble.fields import Field
-from dibble.mapper import ModelMapper
-from dibble.model import Model
+from nose.tools import eq_, assert_dict_contains_subset, raises
 
 DBNAME = 'dibbletest'
 
 
-class UserModel(Model):
-    name = Field()
+class UserModel(dibble.model.Model):
+    name = dibble.fields.Field()
 
 
-class AdvancedUserModel(Model):
-    logincount = Field()
-    username = Field()
-    usernames = Field()
+class AdvancedUserModel(dibble.model.Model):
+    logincount = dibble.fields.Field()
+    username = dibble.fields.Field()
+    usernames = dibble.fields.Field()
 
 
 def get_db():
@@ -28,7 +28,7 @@ def get_db():
 def get_mapper():
     db = get_db()
 
-    return ModelMapper(UserModel, db.user)
+    return dibble.mapper.ModelMapper(UserModel, db.user)
 
 
 def setup_db():
@@ -102,7 +102,7 @@ def test_find_getitem():
 @with_setup(setup_db)
 def test_modelmapper_model_save():
     db = get_db()
-    users = ModelMapper(AdvancedUserModel, db.user)
+    users = dibble.mapper.ModelMapper(AdvancedUserModel, db.user)
 
     user = users()
     user.logincount.inc(1)
@@ -129,7 +129,7 @@ def test_modelmapper_model_save():
 @with_setup(setup_db)
 def test_modelmapper_model_reload():
     db = get_db()
-    users = ModelMapper(AdvancedUserModel, db.user)
+    users = dibble.mapper.ModelMapper(AdvancedUserModel, db.user)
 
     user = users()
     user.username.set('Foo Bar')
@@ -142,3 +142,20 @@ def test_modelmapper_model_reload():
     expected = {'username': 'Fumm Fumm'}
 
     assert_dict_contains_subset(expected, dict(user))
+
+
+
+@with_setup(setup_db)
+@raises(dibble.model.UnboundModelError)
+def test_modelmapper_model_reload_unbound():
+    user = AdvancedUserModel()
+    user.reload()
+
+
+@with_setup(setup_db)
+@raises(dibble.model.UnsavedModelError)
+def test_modelmapper_model_reload_unsaved():
+    db = get_db()
+    users = dibble.mapper.ModelMapper(AdvancedUserModel, db.user)
+    user = users()
+    user.reload()
