@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dibble.fields
 import dibble.model
-from nose.tools import raises, eq_, assert_in
+from nose.tools import raises, eq_, assert_in, assert_false
 
 
 class SimpleModel(dibble.model.Model):
@@ -78,6 +78,13 @@ def test_update():
 
     eq_(dict(m._update), {'$set': {'counter': 1}, '$inc': {'counter': 1}})
 
+
+def test_defined():
+    class TestModel(dibble.model.Model):
+        counter = dibble.fields.Field()
+
+    m = TestModel()
+    assert_false(m.counter.defined)
 
 
 def test_initial():
