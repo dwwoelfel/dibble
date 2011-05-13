@@ -106,6 +106,17 @@ def test_default():
     eq_(m.counter.value, 100)
 
 
+def test_default_callable():
+    class TestModel(dibble.model.Model):
+        counter = dibble.fields.Field(default=lambda: 42)
+
+    m = TestModel()
+    eq_(m.counter.value, 42)
+
+    m.counter.inc(8)
+    eq_(m.counter.value, 50)
+
+
 def test_default_initial():
     class TestModel(dibble.model.Model):
         counter = dibble.fields.Field(default=100)
@@ -128,7 +139,7 @@ def test_iter():
 
     m.c.set(3)
     values = dict(m)
-    
+
     eq_(values, {'a': 1, 'b': 2, 'c': 3})
 
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import collections
 from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin)
 
 
@@ -31,8 +32,8 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         self.name = name
         self.model = model
-        self.default = default
-        self._value = (initial if initial is not undefined else default)
+        self.default = (default() if isinstance(default, collections.Callable) else default)
+        self._value = (initial if initial is not undefined else self.default)
 
 
     @property
