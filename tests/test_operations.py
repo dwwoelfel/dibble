@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nose.tools import raises, eq_
+from nose.tools import raises, eq_, assert_false
 import dibble.fields
 import dibble.model
 import dibble.operations
@@ -69,9 +69,7 @@ def test_unset():
     m.counter.unset()
 
     eq_(dict(m._update), {'$unset': {'counter': 1}})
-
-    # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
-    #assert not hasattr(m, 'counter')
+    assert_false(m.counter.defined)
 
 
 def test_push():

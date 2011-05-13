@@ -3,7 +3,6 @@
 """
 import collections
 
-undefined = object()
 
 class UnknownFieldError(KeyError): pass
 class DuplicateFieldError(KeyError): pass
@@ -51,7 +50,7 @@ class UnsetMixin(object):
         f = getattr(self.model, self.name)
 
         if isinstance(f, dibble.fields.Field):
-            delattr(self.model, self.name)
+            self.value = dibble.fields.undefined
             self.model._update.unset(self.name)
 
         else:
