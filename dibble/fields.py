@@ -37,6 +37,10 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         self.initial = initial
 
 
+    def __call__(self):
+        return self._value
+
+
     @property
     def defined(self):
         return (self._value is not undefined)
@@ -49,10 +53,6 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
     @property
     def value(self):
-        return self._value
-
-
-    def __call__(self):
         return self._value
 
 
