@@ -30,11 +30,11 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
+        self._default = default
+        self._value = (initial if initial is not undefined else self.default)
         self.name = name
         self.model = model
-        self._default = default
         self.initial = initial
-        self._value = (initial if initial is not undefined else self.default)
 
 
     @property
