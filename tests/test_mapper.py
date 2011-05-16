@@ -33,7 +33,8 @@ def get_mapper():
 
 def setup_db():
     db = get_db()
-    db.connection.drop_database(DBNAME)
+    [db.drop_collection(x) for x in db.collection_names() if not x.startswith('system.')]
+    #db.connection.drop_database(DBNAME)
 
 
 @with_setup(setup_db)

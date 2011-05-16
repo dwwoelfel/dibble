@@ -59,8 +59,8 @@ class ModelMapper(object):
         return doc
 
 
-    def update(self, spec, document, *arg, **kw):
-        return self.collection.update(spec, document, *arg, **kw)
+    def update(self, spec, doc, *arg, **kw):
+        return self.collection.update(spec, doc, *arg, **kw)
 
 
     def save(self, doc, *arg, **kw):

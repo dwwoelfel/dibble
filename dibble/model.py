@@ -31,6 +31,7 @@ class ModelBase(object):
                 setattr(self, k, bound)
                 self._fields[k] = bound
 
+
     def __iter__(self):
         for name, field in self._fields.iteritems():
             if field.defined:

@@ -30,11 +30,15 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
+        self._default = default
+        self._value = (initial if initial is not undefined else self.default)
         self.name = name
         self.model = model
-        self._default = default
         self.initial = initial
-        self._value = (initial if initial is not undefined else self.default)
+
+
+    def __call__(self):
+        return self._value
 
 
     @property
@@ -52,10 +56,6 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         return self._value
 
 
-    def __call__(self):
-        return self._value
-
-
     def _reinit(self, value):
         self.initial = value
         self.reset()
@@ -66,34 +66,3 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         self.model._update.drop_field(self.name)
 
 
-
-class Bool(Field):
-    pass
-
-
-class Int(Field, IncrementMixin):
-    pass
-
-
-class Float(Field):
-    pass
-
-
-class Bytes(Field):
-    pass
-
-
-class Unicode(Field):
-    pass
-
-
-class List(Field):
-    pass
-
-
-class Dict(Field):
-    pass
-
-
-class DateTime(Field):
-    pass
