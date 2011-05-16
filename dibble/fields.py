@@ -66,34 +66,3 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         self.model._update.drop_field(self.name)
 
 
-
-class Bool(Field):
-    pass
-
-
-class Int(Field, IncrementMixin):
-    pass
-
-
-class Float(Field):
-    pass
-
-
-class Bytes(Field):
-    pass
-
-
-class Unicode(Field):
-    pass
-
-
-class List(Field):
-    pass
-
-
-class Dict(Field):
-    pass
-
-
-class DateTime(Field):
-    pass
