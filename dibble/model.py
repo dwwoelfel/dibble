@@ -78,6 +78,11 @@ class ModelBase(object):
 
         else:
             doc = dict(self)
+
+            if '_id' in kw:
+                #TODO: Test
+                doc['_id'] = kw.pop('_id')
+
             oid = self._mapper.save(doc, *arg, **kw)
             self._id._reinit(oid)
 
