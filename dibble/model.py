@@ -83,6 +83,8 @@ class ModelBase(object):
                 #TODO: Test
                 doc['_id'] = kw.pop('_id')
 
+            kw['safe'] = True
+
             oid = self._mapper.save(doc, *arg, **kw)
             self._id._reinit(oid)
 
