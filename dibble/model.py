@@ -69,6 +69,8 @@ class ModelBase(object):
         if not self._mapper:
             raise UnboundModelError()
 
+        kw.setdefault('safe', True)
+
         if self._id.defined:
             doc = dict(self)
             upd = dict(self._update)
