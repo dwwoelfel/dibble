@@ -159,3 +159,9 @@ def test_getitem_keyerror():
 def test_getitem_undefined_field():
     m = SimpleModel()
     m['xint']
+
+
+@raises(dibble.model.UnboundModelError)
+def test_unbound_model():
+    m = SimpleModel()
+    m.save()

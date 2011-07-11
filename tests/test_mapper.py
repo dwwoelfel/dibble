@@ -4,7 +4,7 @@ import dibble.fields
 import dibble.model
 import dibble.mapper
 from nose import with_setup
-from nose.tools import eq_, assert_dict_contains_subset, raises
+from nose.tools import eq_, assert_dict_contains_subset, raises, assert_dict_equal
 
 DBNAME = 'dibbletest'
 
@@ -153,6 +153,7 @@ def test_modelmapper_model_reload_unbound():
     user.reload()
 
 
+
 @with_setup(setup_db)
 @raises(dibble.model.UnsavedModelError)
 def test_modelmapper_model_reload_unsaved():
@@ -160,3 +161,19 @@ def test_modelmapper_model_reload_unsaved():
     users = dibble.mapper.ModelMapper(AdvancedUserModel, db.user)
     user = users()
     user.reload()
+
+
+
+@with_setup(setup_db)
+def test_modelmapper_custom_id():
+    db = get_db()
+    users = dibble.mapper.ModelMapper(UserModel, db.user)
+    user = users()
+    user.name.set('Foo Bar')
+
+    user.save(_id='foobar')
+
+    res = users.collection.find_one()
+    expected = {'_id': 'foobar', 'name': 'Foo Bar'}
+
+    assert_dict_equal(res, expected)
