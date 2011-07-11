@@ -5,6 +5,9 @@ import collections
 from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin)
 
 
+class InvalidatedSubfieldError(Exception): pass
+
+
 undefined = object()
 
 
@@ -32,13 +35,19 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         self._default = default
         self._value = (initial if initial is not undefined else self.default)
-        self.name = name
+        self._name = name
+        self._subfields = {}
         self.model = model
         self.initial = initial
 
 
     def __call__(self):
         return self._value
+
+
+    @property
+    def name(self):
+        return self._name
 
 
     @property
@@ -53,12 +62,36 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
     @property
     def value(self):
-        return self._value
+        return (self._value if self.defined else None)
+
+
+    def _setvalue(self, value):
+        self._value = value
+        self._reinit_subfields()
 
 
     def _reinit(self, value):
         self.initial = value
         self.reset()
+        self._reinit_subfields()
+
+
+    def _reinit_subfields(self):
+        if self._subfields:
+            if self._value is undefined:
+                for field in self._subfields.values():
+                    field._reinit(undefined)
+
+            elif isinstance(self._value, collections.Mapping):
+                for key, field in self._subfields.items():
+                    v = self._value[key]
+                    field._reinit(v)
+
+            else:
+                for field in self._subfields.values():
+                    field._invalidate()
+
+                self._subfields.clear()
 
 
     def reset(self):
@@ -66,3 +99,78 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         self.model._update.drop_field(self.name)
 
 
+    def subfield(self, key):
+        if key not in self._subfields:
+            sf = Subfield(parent=self)
+
+            if self.defined:
+                if isinstance(self._value, collections.Mapping):
+                    if key in self._value:
+                        sf_initial = self._value[key]
+                        bsf = sf.bind(key, self.model, initial=sf_initial)
+
+                    else:
+                        bsf = sf.bind(key, self.model)
+
+                else:
+                    raise ValueError('Cannot create subfield for {0!r}'.format(self._value))
+
+            else:
+                bsf = sf.bind(key, self.model)
+
+            self._subfields[key] = bsf
+
+        return self._subfields[key]
+
+
+    def __getitem__(self, item):
+        return self.subfield(item)
+
+
+
+class Subfield(Field):
+    def __init__(self, default=undefined, name=None, initial=undefined, model=None, parent=None):
+        super(Subfield, self).__init__(default=default, name=name, initial=initial, model=model)
+        self.parent = parent
+
+
+    @property
+    def name(self):
+        return '{0}.{1}'.format('.'.join(x._name for x in reversed(self.parents)), self._name)
+
+
+    @property
+    def parents(self):
+        parentlist = []
+        field = self.parent
+
+        while field is not None:
+            parentlist.append(field)
+            field = getattr(field, 'parent', None)
+
+        return parentlist
+
+
+    def _setvalue(self, value):
+        if self.parent is None:
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+
+        super(Subfield, self)._setvalue(value)
+
+        parents = self.parents
+        parent, key, v = parents[0], self._name, value
+
+        while parent is not None:
+            if parent.defined:
+                parent._value[key] = v
+                break
+
+            parent._value = v = {key: v}
+            key = parent._name
+            parent = getattr(parent, 'parent', None)
+
+
+    def _invalidate(self):
+        self.parent = None
+        self.model = None
+        

@@ -10,17 +10,17 @@ class DuplicateFieldError(KeyError): pass
 
 class SetMixin(object):
     def set(self, value):
-        self._value = value
+        self._setvalue(value)
         self.model._update.set(self.name, value)
 
 
 class IncrementMixin(object):
     def inc(self, increment):
         if self.defined:
-            self._value += increment
+            self._setvalue(self._value + increment)
 
         else:
-            self._value = increment
+            self._setvalue(increment)
 
         self.model._update.inc(self.name, increment)
 
@@ -40,7 +40,7 @@ class RenameMixin(object):
                 oldname = self.name
                 delattr(self.model, self.name)
                 setattr(self.model, new, f)
-                f.name = new
+                f._name = new
                 self.model._update.rename(oldname, new)
 
         else:
@@ -55,7 +55,7 @@ class UnsetMixin(object):
         f = getattr(self.model, self.name, None)
 
         if isinstance(f, dibble.fields.Field):
-            self._value = dibble.fields.undefined
+            self._setvalue(dibble.fields.undefined)
             self.model._update.unset(self.name)
 
         else:
@@ -65,10 +65,10 @@ class UnsetMixin(object):
 class PushMixin(object):
     def push(self, value):
         if self.defined:
-            self._value.append(value)
+            self._setvalue(self._value + [value])
 
         else:
-            self._value = [value]
+            self._setvalue([value])
 
         self.model._update.push(self.name, value)
 
@@ -76,38 +76,38 @@ class PushMixin(object):
 class PushAllMixin(object):
     def push_all(self, values):
         if self.defined:
-            self._value.extend(values)
+            self._setvalue(self._value + values)
 
         else:
-            self._value = [x for x in values]
+            self._setvalue(values[:])
 
         self.model._update.pushAll(self.name, values)
 
 
 class AddToSetMixin(object):
     def add_to_set(self, value):
-        if not self.defined:
-            self._value = []
+        newvalue = (self._value[:] if self.defined else [])
 
         if isinstance(value, collections.Mapping) and ('$each' in value):
             for v in value['$each']:
-                if not v in self._value:
-                    self._value.append(v)
+                if not v in newvalue:
+                    newvalue.append(v)
 
         else:
-            if not value in self._value:
-                self._value.append(value)
+            if not value in newvalue:
+                newvalue.append(value)
 
+        self._setvalue(newvalue)
         self.model._update.addToSet(self.name, value)
 
 
 class PopMixin(object):
     def pop(self, first=False):
         if first:
-            self._value.pop(0)
+            self._setvalue(self._value[1:])
 
         else:
-            self._value.pop()
+            self._setvalue(self._value[:-1])
 
         self.model._update.pop(self.name, first)
 
@@ -118,12 +118,12 @@ class PullMixin(object):
             raise NotImplementedError('using pull() with a match criteria is not supported')
 
         else:
-            self._value = [x for x in self._value if x != value]
+            self._setvalue([x for x in self._value if x != value])
 
         self.model._update.pull(self.name, value)
 
 
 class PullAllMixin(object):
     def pull_all(self, values):
-        self._value = [x for x in self._value if (x not in values)]
+        self._setvalue([x for x in self._value if (x not in values)])
         self.model._update.pullAll(self.name, values)
