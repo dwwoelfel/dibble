@@ -45,7 +45,7 @@ class ModelMapper(object):
     def find(self, spec=None, *args, **kw):
         spec = spec or {}
 
-        return ModelCursor(self, self.collection, *args, **kw)
+        return ModelCursor(self, self.collection, spec, *args, **kw)
 
 
     def find_one(self, spec=None, *arg, **kw):

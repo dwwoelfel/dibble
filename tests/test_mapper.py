@@ -69,7 +69,10 @@ def test_find_generator():
     users = get_mapper()
 
     dummy_user = {'name': 'test'}
-    users.save(dummy_user)
+    uid = users.save(dummy_user, safe=True)
+
+    for x in range(10):
+        users.save({'name': 'test_' + str(x)})
 
     cursor = users.find({'name': dummy_user['name']})
 
@@ -77,6 +80,7 @@ def test_find_generator():
 
     db_user = list(cursor)[0]
 
+    eq_(db_user['_id'], uid)
     eq_(db_user.name.value, dummy_user['name'])
     eq_(db_user['name'], dummy_user['name'])
 
@@ -87,7 +91,10 @@ def test_find_getitem():
     users = get_mapper()
 
     dummy_user = {'name': 'test'}
-    users.save(dummy_user)
+    uid = users.save(dummy_user, safe=True)
+
+    for x in range(10):
+        users.save({'name': 'test_' + str(x)})
 
     cursor = users.find({'name': dummy_user['name']})
 
@@ -95,6 +102,7 @@ def test_find_getitem():
 
     db_user = cursor[0]
 
+    eq_(db_user['_id'], uid)
     eq_(db_user.name.value, dummy_user['name'])
     eq_(db_user['name'], dummy_user['name'])
 
