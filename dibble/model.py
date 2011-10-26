@@ -75,7 +75,11 @@ class ModelBase(object):
             doc = dict(self)
             upd = dict(self._update)
             oid = doc.get('_id', None)
-            self._mapper.update({'_id': oid}, upd, *arg, **kw)
+
+            # do not perform update with empty update document as
+            # this would overwrite/clear existing data
+            if upd:
+                self._mapper.update({'_id': oid}, upd, *arg, **kw)
 
 
         else:
