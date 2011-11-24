@@ -47,6 +47,10 @@ class ModelBase(object):
         raise UndefinedFieldError('Field {0!r} is not defined.'.format(key))
 
 
+    def __repr__(self):
+        return '<{0}({1!r})>'.format(self.__class__.__name__, dict(self))
+
+
     def bind(self, mapper):
         self._mapper = mapper
 
