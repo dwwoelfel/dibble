@@ -51,6 +51,11 @@ class ModelBase(object):
         return '<{0}({1!r})>'.format(self.__class__.__name__, dict(self))
 
 
+    @property
+    def is_new(self):
+        return not self._id.defined
+
+
     def bind(self, mapper):
         self._mapper = mapper
 
@@ -75,18 +80,7 @@ class ModelBase(object):
 
         kw.setdefault('safe', True)
 
-        if self._id.defined:
-            doc = dict(self)
-            upd = dict(self._update)
-            oid = doc.get('_id', None)
-
-            # do not perform update with empty update document as
-            # this would overwrite/clear existing data
-            if upd:
-                self._mapper.update({'_id': oid}, upd, *arg, **kw)
-
-
-        else:
+        if self.is_new:
             doc = dict(self)
 
             if '_id' in kw:
@@ -97,6 +91,16 @@ class ModelBase(object):
 
             oid = self._mapper.save(doc, *arg, **kw)
             self._id.reset(oid)
+
+        else:
+            doc = dict(self)
+            upd = dict(self._update)
+            oid = doc.get('_id', None)
+
+            # do not perform update with empty update document as
+            # this would overwrite/clear existing data
+            if upd:
+                self._mapper.update({'_id': oid}, upd, *arg, **kw)
 
         self._update.clear()
 
