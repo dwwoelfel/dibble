@@ -66,7 +66,7 @@ class ModelBase(object):
 
         for name, field in new._fields.items():
             if name in self._fields:
-                self._fields[name]._reinit(field.value)
+                self._fields[name].reset(field.value)
 
 
     def save(self, *arg, **kw):
@@ -96,7 +96,7 @@ class ModelBase(object):
             kw['safe'] = True
 
             oid = self._mapper.save(doc, *arg, **kw)
-            self._id._reinit(oid)
+            self._id.reset(oid)
 
         self._update.clear()
 
