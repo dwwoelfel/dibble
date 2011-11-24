@@ -68,10 +68,10 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
     def _setvalue(self, value):
         self._value = value
-        self._reinit_subfields()
+        self._reset_subfields()
 
 
-    def _reinit_subfields(self):
+    def _reset_subfields(self):
         if self._subfields:
             if self._value is undefined:
                 for field in self._subfields.values():
@@ -97,7 +97,7 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         else:
             self.initial = value
             self.reset()
-            self._reinit_subfields()
+            self._reset_subfields()
 
 
     def subfield(self, key):
