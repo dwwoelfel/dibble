@@ -30,14 +30,13 @@ class UnboundField(object):
         return self.field_class(name=name, model=model, initial=initial, *self.arg, **self.kw)
 
 
-class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin):
+class BaseField(object):
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         self._default = default
         self._value = (initial if initial is not undefined else self.default)
         self._name = name
-        self._subfields = {}
         self.model = model
         self.initial = initial
 
@@ -66,6 +65,23 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
         return (self._value if self.defined else None)
 
 
+    def reset(self, value=unknown):
+        if value is unknown:
+            self._value = (self.initial if self.initial is not undefined else self.default)
+            self.model._update.drop_field(self.name)
+
+        else:
+            self.initial = value
+            self.reset()
+
+
+
+class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin):
+    def __init__(self, default=undefined, name=None, initial=undefined, model=None):
+        super(Field, self).__init__(default, name, initial, model)
+        self._subfields = {}
+
+
     def _setvalue(self, value):
         self._value = value
         self._reset_subfields()
@@ -90,13 +106,9 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
 
     def reset(self, value=unknown):
-        if value is unknown:
-            self._value = (self.initial if self.initial is not undefined else self.default)
-            self.model._update.drop_field(self.name)
+        super(Field, self).reset(value)
 
-        else:
-            self.initial = value
-            self.reset()
+        if value is not unknown:
             self._reset_subfields()
 
 
