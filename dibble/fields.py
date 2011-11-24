@@ -8,7 +8,8 @@ from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin
 class InvalidatedSubfieldError(Exception): pass
 
 
-undefined = object()
+undefined = object() # used for undefined defaults and initial values
+unknown = object()   # used for unknown values in reset-calls
 
 
 class FieldMeta(type):
@@ -67,25 +68,19 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
 
     def _setvalue(self, value):
         self._value = value
-        self._reinit_subfields()
+        self._reset_subfields()
 
 
-    def _reinit(self, value):
-        self.initial = value
-        self.reset()
-        self._reinit_subfields()
-
-
-    def _reinit_subfields(self):
+    def _reset_subfields(self):
         if self._subfields:
             if self._value is undefined:
                 for field in self._subfields.values():
-                    field._reinit(undefined)
+                    field.reset(undefined)
 
             elif isinstance(self._value, collections.Mapping):
                 for key, field in self._subfields.items():
                     v = self._value[key]
-                    field._reinit(v)
+                    field.reset(v)
 
             else:
                 for field in self._subfields.values():
@@ -94,9 +89,15 @@ class Field(SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAl
                 self._subfields.clear()
 
 
-    def reset(self):
-        self._value = (self.initial if self.initial is not undefined else self.default)
-        self.model._update.drop_field(self.name)
+    def reset(self, value=unknown):
+        if value is unknown:
+            self._value = (self.initial if self.initial is not undefined else self.default)
+            self.model._update.drop_field(self.name)
+
+        else:
+            self.initial = value
+            self.reset()
+            self._reset_subfields()
 
 
     def subfield(self, key):
@@ -173,4 +174,4 @@ class Subfield(Field):
     def _invalidate(self):
         self.parent = None
         self.model = None
-        
+
