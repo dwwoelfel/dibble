@@ -19,7 +19,12 @@ class ModelBase(object):
         self._mapper = None
 
         for k in dir(self):
-            v = getattr(self, k)
+            # FIXME: model needs metaclass, solves problem with properties and del on model fields
+            try:
+                v = getattr(self, k)
+
+            except AttributeError:
+                continue
 
             if isinstance(v, fields.UnboundField):
                 if k in initial:
