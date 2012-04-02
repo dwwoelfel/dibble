@@ -5,20 +5,24 @@ import dibble.fields
 import dibble.model
 
 
+class FakeModel(object):
+    _requires_reload = False
+
+
 def test_unbound():
     f = dibble.fields.Field()
     assert isinstance(f, dibble.fields.UnboundField)
 
 
 def test_bind():
-    fakemodel = object()
+    fakemodel = FakeModel()
     f = dibble.fields.Field()
     bound = f.bind(name='foo', model=fakemodel)
     assert bound.model is fakemodel
 
 
 def test_field_call():
-    fakemodel = object()
+    fakemodel = FakeModel()
     f = dibble.fields.Field()
     bf = f.bind(name='foo', model=fakemodel, initial=5)
 
