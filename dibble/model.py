@@ -17,6 +17,7 @@ class ModelBase(object):
         self._update = Update()
         self._fields = {}
         self._mapper = None
+        self._requires_reload = False
 
         for k in dir(self):
             # FIXME: model needs metaclass, solves problem with properties and del on model fields
@@ -78,12 +79,15 @@ class ModelBase(object):
             if name in self._fields:
                 self._fields[name].reset(field.value)
 
+        self._requires_reload = False
+
 
     def save(self, *arg, **kw):
         if not self._mapper:
             raise UnboundModelError()
 
         kw.setdefault('safe', True)
+        self._requires_reload = False
 
         if self.is_new:
             doc = dict(self)
@@ -108,6 +112,7 @@ class ModelBase(object):
                 self._mapper.update({'_id': oid}, upd, *arg, **kw)
 
         self._update.clear()
+        self._requires_reload = True
 
         return oid
 

@@ -42,7 +42,7 @@ class BaseField(object):
 
 
     def __call__(self):
-        return self._value
+        return self.value
 
 
     @property
@@ -62,6 +62,9 @@ class BaseField(object):
 
     @property
     def value(self):
+        if (self._name != '_id') and self.model._requires_reload:
+            self.model.reload()
+
         return (self._value if self.defined else None)
 
 
