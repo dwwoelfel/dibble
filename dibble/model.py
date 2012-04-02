@@ -77,7 +77,7 @@ class ModelBase(object):
 
         for name, field in new._fields.items():
             if name in self._fields:
-                self._fields[name].reset(field.value)
+                self._fields[name].reset(field._value)
 
         self._requires_reload = False
 
