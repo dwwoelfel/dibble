@@ -19,6 +19,11 @@ class AdvancedUserModel(dibble.model.Model):
     usernames = dibble.fields.Field()
 
 
+class ReloadTestModel(dibble.model.Model):
+    counter = dibble.fields.Field()
+    foo = dibble.fields.Field()
+
+
 def get_db():
     con = pymongo.Connection()
 
@@ -185,3 +190,18 @@ def test_modelmapper_custom_id():
     expected = {'_id': 'foobar', 'name': 'Foo Bar'}
 
     assert_dict_equal(res, expected)
+
+
+def test_modelpapper_reload_inc():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    # this is intentional and triggers a model reload
+    m.counter.value
+
+    m.counter.inc(1)
+    m.save()
