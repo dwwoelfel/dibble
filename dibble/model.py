@@ -66,20 +66,21 @@ class ModelBase(object):
         self._mapper = mapper
 
 
-    def reload(self):
-        if not self._mapper:
-            raise UnboundModelError()
+    def reload(self, force=True):
+        if self._requires_reload or force:
+            if not self._mapper:
+                raise UnboundModelError()
 
-        if not self._id.defined:
-            raise UnsavedModelError()
+            if not self._id.defined:
+                raise UnsavedModelError()
 
-        new = self._mapper.find_one({'_id': self._id.value})
+            new = self._mapper.find_one({'_id': self._id.value})
 
-        for name, field in new._fields.items():
-            if name in self._fields:
-                self._fields[name].reset(field._value)
+            for name, field in new._fields.items():
+                if name in self._fields:
+                    self._fields[name].reset(field._value)
 
-        self._requires_reload = False
+            self._requires_reload = False
 
 
     def save(self, *arg, **kw):

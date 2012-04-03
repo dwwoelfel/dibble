@@ -62,8 +62,8 @@ class BaseField(object):
 
     @property
     def value(self):
-        if (self._name != '_id') and self.model._requires_reload:
-            self.model.reload()
+        if self._name != '_id':
+            self.model.reload(force=False)
 
         return (self._value if self.defined else None)
 
