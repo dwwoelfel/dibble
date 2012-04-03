@@ -192,6 +192,7 @@ def test_modelmapper_custom_id():
     assert_dict_equal(res, expected)
 
 
+@with_setup(setup_db)
 def test_modelpapper_reload_inc():
     db = get_db()
     mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
@@ -205,3 +206,20 @@ def test_modelpapper_reload_inc():
 
     m.counter.inc(1)
     m.save()
+
+
+@with_setup(setup_db)
+def test_modelmapper_unsafe_update():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.counter.set(1)
+    m.save()
+
+    m._update.inc('counter', 41)
+    m.save()
+
+    expected = {'foo': 'bar', 'counter': 42}
+    assert_dict_contains_subset(expected, dict(m))
