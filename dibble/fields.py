@@ -98,8 +98,12 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
 
             elif isinstance(self._value, collections.Mapping):
                 for key, field in self._subfields.items():
-                    v = self._value[key]
-                    field.reset(v)
+                    if key in self._value:
+                        v = self._value[key]
+                        field.reset(v)
+
+                    else:
+                        field._invalidate()
 
             else:
                 for field in self._subfields.values():
