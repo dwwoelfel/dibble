@@ -22,6 +22,7 @@ class AdvancedUserModel(dibble.model.Model):
 class ReloadTestModel(dibble.model.Model):
     counter = dibble.fields.Field()
     foo = dibble.fields.Field()
+    bar = dibble.fields.Field()
 
 
 def get_db():
@@ -205,6 +206,163 @@ def test_modelpapper_reload_inc():
     m.counter.value
 
     m.counter.inc(1)
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_set():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    m.bar.set('foo')
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, 'foo')
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_inc():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    m.counter.inc(1)
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.counter.value, 1)
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_unset():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.bar.set('foo')
+    m.save()
+
+    m.bar.unset()
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.defined, False)
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_push():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    m.bar.push('foo')
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo'])
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_push_all():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    m.bar.push_all(['foo', 'bar', 'baz'])
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo', 'bar', 'baz'])
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_add_to_set():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.save()
+
+    m.bar.add_to_set('foo')
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo'])
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_pop():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.bar.set(['foo', 'bar', 'baz'])
+    m.save()
+
+    m.bar.pop()
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo', 'bar'])
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_pull():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.bar.set(['foo', 'bar', 'baz'])
+    m.save()
+
+    m.bar.pull('bar')
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo', 'baz'])
+
+    m.save()
+
+
+@with_setup(setup_db)
+def test_modelpapper_reload_multifield_pull_all():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(ReloadTestModel, db.reloadtest)
+
+    m = mapper()
+    m.foo.set('bar')
+    m.bar.set(['foo', 'bar', 'baz'])
+    m.save()
+
+    m.bar.pull_all(['bar', 'baz'])
+
+    eq_(m.foo.value, 'bar')
+    eq_(m.bar.value, ['foo'])
+
     m.save()
 
 

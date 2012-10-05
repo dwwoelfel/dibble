@@ -2,19 +2,32 @@
 """
 """
 import collections
+import functools
 
 
 class UnknownFieldError(KeyError): pass
 class DuplicateFieldError(KeyError): pass
 
 
+def reloading(fn):
+    @functools.wraps(fn)
+    def wrapper(self, *arg, **kw):
+        self._reload(force=False)
+        return fn(self, *arg, **kw)
+
+    return wrapper
+
+
+
 class SetMixin(object):
+    @reloading
     def set(self, value):
         self._setvalue(value)
         self.model._update.set(self.name, value)
 
 
 class IncrementMixin(object):
+    @reloading
     def inc(self, increment):
         if self.defined:
             self._setvalue(self._value + increment)
@@ -48,6 +61,7 @@ class RenameMixin(object):
 
 
 class UnsetMixin(object):
+    @reloading
     def unset(self):
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
@@ -63,6 +77,7 @@ class UnsetMixin(object):
 
 
 class PushMixin(object):
+    @reloading
     def push(self, value):
         if self.defined:
             self._setvalue(self._value + [value])
@@ -74,6 +89,7 @@ class PushMixin(object):
 
 
 class PushAllMixin(object):
+    @reloading
     def push_all(self, values):
         if self.defined:
             self._setvalue(self._value + values)
@@ -85,6 +101,7 @@ class PushAllMixin(object):
 
 
 class AddToSetMixin(object):
+    @reloading
     def add_to_set(self, value):
         newvalue = (self._value[:] if self.defined else [])
 
@@ -102,6 +119,7 @@ class AddToSetMixin(object):
 
 
 class PopMixin(object):
+    @reloading
     def pop(self, first=False):
         if first:
             self._setvalue(self._value[1:])
@@ -113,6 +131,7 @@ class PopMixin(object):
 
 
 class PullMixin(object):
+    @reloading
     def pull(self, value):
         if isinstance(value, dict):
             raise NotImplementedError('using pull() with a match criteria is not supported')
@@ -124,6 +143,7 @@ class PullMixin(object):
 
 
 class PullAllMixin(object):
+    @reloading
     def pull_all(self, values):
         self._setvalue([x for x in self._value if (x not in values)])
         self.model._update.pullAll(self.name, values)

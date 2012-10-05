@@ -63,7 +63,7 @@ class BaseField(object):
     @property
     def value(self):
         if self._name != '_id':
-            self.model.reload(force=False)
+            self._reload(force=False)
 
         return (self._value if self.defined else None)
 
@@ -76,6 +76,10 @@ class BaseField(object):
         else:
             self.initial = value
             self.reset()
+
+
+    def _reload(self, *arg, **kw):
+        self.model.reload(*arg, **kw)
 
 
 
@@ -193,4 +197,20 @@ class Subfield(Field):
     def _invalidate(self):
         self.parent = None
         self.model = None
+
+
+    @property
+    def value(self):
+        if self.parent is None:
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+
+        return super(Subfield, self).value
+
+
+    def _reload(self, *arg, **kw):
+        if self.parent is None:
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+
+        return super(Subfield, self)._reload(*arg, **kw)
+
 
