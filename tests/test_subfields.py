@@ -159,4 +159,16 @@ def test_subfield_invalidation():
     tm.foo.set('bar')
     sf.set('baz')
 
-    
+
+
+@raises(dibble.fields.InvalidatedSubfieldError)
+def test_subfield_invalidation_dict():
+    tm = TestModel({'foo': {'bar': 'baz'}})
+    sf = tm.foo['bar']
+
+    sf.set('fumm')
+    eq_(sf.value, 'fumm')
+    eq_(tm.foo.value, {'bar': 'fumm'})
+
+    tm.foo.set({'fnorb': None})
+    sf.set('baz')
