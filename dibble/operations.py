@@ -136,7 +136,7 @@ class PullMixin(object):
         if isinstance(value, dict):
             raise NotImplementedError('using pull() with a match criteria is not supported')
 
-        else:
+        elif self._value:
             self._setvalue([x for x in self._value if x != value])
 
         self.model._update.pull(self.name, value)

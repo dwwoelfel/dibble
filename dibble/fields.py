@@ -8,8 +8,8 @@ from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin
 class InvalidatedSubfieldError(Exception): pass
 
 
-undefined = object() # used for undefined defaults and initial values
-unknown = object()   # used for unknown values in reset-calls
+undefined = type('Undefined', (object, ), {'__nonzero__': lambda s: False})() # used for undefined defaults and initial values
+unknown = type('Unknown', (object, ), {'__nonzero__': lambda s: False})()     # used for unknown values in reset-calls
 
 
 class FieldMeta(type):
