@@ -44,6 +44,8 @@ class ModelMapper(object):
 
     def find(self, spec=None, *args, **kw):
         spec = spec or {}
+        kw.setdefault('slave_ok', self.collection.slave_okay)
+        kw.setdefault('read_preference', self.collection.read_preference)
 
         return ModelCursor(self, self.collection, spec, *args, **kw)
 
