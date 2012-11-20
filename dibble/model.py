@@ -21,19 +21,17 @@ class ModelBase(object):
         self._requires_reload = False
 
         for k in dir(self):
-            # FIXME: model needs metaclass, solves problem with properties and del on model fields
-            try:
-                v = getattr(self, k)
-
-            except AttributeError:
-                continue
+            # lookup in class to avoid triggering property evaluation
+            v = getattr(self.__class__, k, None)
 
             if isinstance(v, fields.UnboundField):
+                field = getattr(self, k)
+                
                 if k in initial:
-                    bound = v.bind(k, self, initial[k])
+                    bound = field.bind(k, self, initial[k])
 
                 else:
-                    bound = v.bind(k, self)
+                    bound = field.bind(k, self)
 
                 setattr(self, k, bound)
                 self._fields[k] = bound

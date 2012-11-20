@@ -14,6 +14,16 @@ class SimpleModel(dibble.model.Model):
     xdict = dibble.fields.Field()
 
 
+
+class PropertyModel(dibble.model.Model):
+    @property
+    def prop(self):
+        return self.zfield['subfield'].value
+
+    zfield = dibble.fields.Field()
+
+
+
 def test_initialization():
     cls = SimpleModel
     m = SimpleModel()
@@ -165,3 +175,10 @@ def test_getitem_undefined_field():
 def test_unbound_model():
     m = SimpleModel()
     m.save()
+
+
+def test_model_with_properties():
+    m = PropertyModel()
+
+    # should not trigger errors
+    eq_(m.prop, None)
