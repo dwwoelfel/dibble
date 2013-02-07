@@ -4,10 +4,20 @@ from . import fields
 from .update import Update
 
 
-class ModelError(Exception): pass
-class UnboundModelError(ModelError): pass
-class UnsavedModelError(ModelError): pass
-class UndefinedFieldError(KeyError): pass
+class ModelError(Exception):
+    pass
+
+
+class UnboundModelError(ModelError):
+    pass
+
+
+class UnsavedModelError(ModelError):
+    pass
+
+
+class UndefinedFieldError(KeyError):
+    pass
 
 
 class ModelBase(object):
@@ -26,7 +36,7 @@ class ModelBase(object):
 
             if isinstance(v, fields.UnboundField):
                 field = getattr(self, k)
-                
+
                 if k in initial:
                     bound = field.bind(k, self, initial[k])
 
@@ -36,12 +46,10 @@ class ModelBase(object):
                 setattr(self, k, bound)
                 self._fields[k] = bound
 
-
     def __iter__(self):
         for name, field in self._fields.iteritems():
             if field.defined:
                 yield (name, field.value)
-
 
     def __getitem__(self, key):
         field = self._fields[key]
@@ -51,19 +59,15 @@ class ModelBase(object):
 
         raise UndefinedFieldError('Field {0!r} is not defined.'.format(key))
 
-
     def __repr__(self):
         return '<{0}({1!r})>'.format(self.__class__.__name__, dict(self))
-
 
     @property
     def is_new(self):
         return not self._id.defined
 
-
     def bind(self, mapper):
         self._mapper = mapper
-
 
     def reload(self, force=True):
         if self._requires_reload or force:
@@ -73,14 +77,14 @@ class ModelBase(object):
             if not self._id.defined:
                 raise UnsavedModelError()
 
-            new = self._mapper.find_one({'_id': self._id.value}, slave_ok=False, read_preference=pymongo.ReadPreference.PRIMARY)
+            new = self._mapper.find_one({'_id': self._id.value}, slave_ok=False,
+                                        read_preference=pymongo.ReadPreference.PRIMARY)
 
             for name, field in new._fields.items():
                 if name in self._fields:
                     self._fields[name].reset(field._value)
 
             self._requires_reload = False
-
 
     def save(self, *arg, **kw):
         if not self._mapper:
@@ -115,7 +119,6 @@ class ModelBase(object):
         self._requires_reload = True
 
         return oid
-
 
 
 class Model(ModelBase):

@@ -2,8 +2,12 @@
 import collections
 
 
-class InvalidOperatorError(ValueError): pass
-class DuplicateFieldError(ValueError): pass
+class InvalidOperatorError(ValueError):
+    pass
+
+
+class DuplicateFieldError(ValueError):
+    pass
 
 
 class FieldDict(dict):
@@ -13,10 +17,8 @@ class FieldDict(dict):
 
         super(FieldDict, self).__setitem__(k, v)
 
-
-    def update(self, e, **f):
+    def update(self, E=None, **F):
         raise NotImplementedError()
-
 
 
 class OperatorDict(collections.defaultdict):
@@ -26,15 +28,13 @@ class OperatorDict(collections.defaultdict):
     def __init__(self):
         super(OperatorDict, self).__init__(FieldDict)
 
-
     def __setitem__(self, k, v):
         if k not in self.OPERATORS:
             raise InvalidOperatorError('"{0}" is not a valid operator'.format(k))
 
         super(OperatorDict, self).__setitem__(k, v)
 
-
-    def update(self, e, **f):
+    def update(self, E=None, **F):
         raise NotImplementedError()
 
 
@@ -42,14 +42,11 @@ class Update(object):
     def __init__(self):
         self._ops = OperatorDict()
 
-
     def __iter__(self):
         return self._ops.iteritems()
 
-
     def clear(self):
         self._ops.clear()
-
 
     def drop_field(self, field):
         empty_keys = []
@@ -63,10 +60,8 @@ class Update(object):
         for k in empty_keys:
             del self._ops[k]
 
-
     def set(self, field, value):
         self._ops['$set'][field] = value
-
 
     def inc(self, field, increment):
         """
@@ -77,7 +72,6 @@ class Update(object):
         """
         self._ops['$inc'][field] = increment
 
-
     def rename(self, old, new):
         """
         >>> update = Update()
@@ -87,31 +81,24 @@ class Update(object):
         """
         self._ops['$rename'][old] = new
 
-
     def unset(self, name):
         self._ops['$unset'][name] = 1
-
 
     def push(self, name, value):
         self._ops['$push'][name] = value
 
-
     def pushAll(self, name, values):
         self._ops['$pushAll'][name] = values
 
-
     def addToSet(self, name, value):
         self._ops['$addToSet'][name] = value
-
 
     def pop(self, name, first=False):
         v = (-1 if first else 1)
         self._ops['$pop'][name] = v
 
-
     def pull(self, name, value):
         self._ops['$pull'][name] = value
-
 
     def pullAll(self, name, values):
         self._ops['$pullAll'][name] = values

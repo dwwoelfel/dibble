@@ -5,8 +5,12 @@ import collections
 import functools
 
 
-class UnknownFieldError(KeyError): pass
-class DuplicateFieldError(KeyError): pass
+class UnknownFieldError(KeyError):
+    pass
+
+
+class DuplicateFieldError(KeyError):
+    pass
 
 
 def reloading(fn):
@@ -16,7 +20,6 @@ def reloading(fn):
         return fn(self, *arg, **kw)
 
     return wrapper
-
 
 
 class SetMixin(object):

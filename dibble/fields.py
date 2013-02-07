@@ -2,14 +2,18 @@
 """
 """
 import collections
-from dibble.operations import (SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin)
+from dibble.operations import SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin
+from dibble.operations import AddToSetMixin, PopMixin, PullMixin, PullAllMixin
 
 
-class InvalidatedSubfieldError(Exception): pass
+class InvalidatedSubfieldError(Exception):
+    pass
 
 
-undefined = type('Undefined', (object, ), {'__nonzero__': lambda s: False})() # used for undefined defaults and initial values
-unknown = type('Unknown', (object, ), {'__nonzero__': lambda s: False})()     # used for unknown values in reset-calls
+# used for undefined defaults and initial values
+undefined = type('Undefined', (object, ), {'__nonzero__': lambda s: False})()
+# used for unknown values in reset-calls
+unknown = type('Unknown', (object, ), {'__nonzero__': lambda s: False})()
 
 
 class FieldMeta(type):
@@ -40,25 +44,20 @@ class BaseField(object):
         self.model = model
         self.initial = initial
 
-
     def __call__(self):
         return self.value
-
 
     @property
     def name(self):
         return self._name
 
-
     @property
     def defined(self):
         return (self._value is not undefined)
 
-
     @property
     def default(self):
         return (self._default() if isinstance(self._default, collections.Callable) else self._default)
-
 
     @property
     def value(self):
@@ -66,7 +65,6 @@ class BaseField(object):
             self._reload(force=False)
 
         return (self._value if self.defined else None)
-
 
     def reset(self, value=unknown):
         if value is unknown:
@@ -77,22 +75,19 @@ class BaseField(object):
             self.initial = value
             self.reset()
 
-
     def _reload(self, *arg, **kw):
         self.model.reload(*arg, **kw)
 
 
-
-class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin, PopMixin, PullMixin, PullAllMixin):
+class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin,
+            PopMixin, PullMixin, PullAllMixin):
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         super(Field, self).__init__(default, name, initial, model)
         self._subfields = {}
 
-
     def _setvalue(self, value):
         self._value = value
         self._reset_subfields()
-
 
     def _reset_subfields(self):
         if self._subfields:
@@ -115,13 +110,11 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
 
                 self._subfields.clear()
 
-
     def reset(self, value=unknown):
         super(Field, self).reset(value)
 
         if value is not unknown:
             self._reset_subfields()
-
 
     def subfield(self, key):
         if key not in self._subfields:
@@ -146,10 +139,8 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
 
         return self._subfields[key]
 
-
     def __getitem__(self, item):
         return self.subfield(item)
-
 
 
 class Subfield(Field):
@@ -157,11 +148,9 @@ class Subfield(Field):
         super(Subfield, self).__init__(default=default, name=name, initial=initial, model=model)
         self.parent = parent
 
-
     @property
     def name(self):
         return '{0}.{1}'.format('.'.join(x._name for x in reversed(self.parents)), self._name)
-
 
     @property
     def parents(self):
@@ -174,10 +163,10 @@ class Subfield(Field):
 
         return parentlist
 
-
     def _setvalue(self, value):
         if self.parent is None:
-            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s '
+                                           'parent Field.'.format(self._name))
 
         super(Subfield, self)._setvalue(value)
 
@@ -193,24 +182,21 @@ class Subfield(Field):
             key = parent._name
             parent = getattr(parent, 'parent', None)
 
-
     def _invalidate(self):
         self.parent = None
         self.model = None
 
-
     @property
     def value(self):
         if self.parent is None:
-            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s '
+                                           'parent Field.'.format(self._name))
 
         return super(Subfield, self).value
 
-
     def _reload(self, *arg, **kw):
         if self.parent is None:
-            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s parent Field.'.format(self._name))
+            raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s '
+                                           'parent Field.'.format(self._name))
 
         return super(Subfield, self)._reload(*arg, **kw)
-
-

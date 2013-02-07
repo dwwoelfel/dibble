@@ -7,7 +7,6 @@ class ModelCursor(PymongoCursor):
         super(ModelCursor, self).__init__(*arg, **kw)
         self.mapper = mapper
 
-
     def __getitem__(self, key):
         doc = super(ModelCursor, self).__getitem__(key)
 
@@ -15,7 +14,6 @@ class ModelCursor(PymongoCursor):
         instance.bind(self.mapper)
 
         return instance
-
 
     def next(self):
         doc = super(ModelCursor, self).next()
@@ -31,16 +29,13 @@ class ModelMapper(object):
         self.model = model
         self.collection = collection
 
-
     def __call__(self, *arg, **kw):
         doc = self.model(*arg, **kw)
         doc.bind(self)
         return doc
 
-
     def count(self):
         return self.collection.count()
-
 
     def find(self, spec=None, *args, **kw):
         spec = spec or {}
@@ -48,7 +43,6 @@ class ModelMapper(object):
         kw.setdefault('read_preference', self.collection.read_preference)
 
         return ModelCursor(self, self.collection, spec, *args, **kw)
-
 
     def find_one(self, spec=None, *arg, **kw):
         spec = spec or {}
@@ -60,11 +54,8 @@ class ModelMapper(object):
 
         return doc
 
-
     def update(self, spec, doc, *arg, **kw):
         return self.collection.update(spec, doc, *arg, **kw)
 
-
     def save(self, doc, *arg, **kw):
         return self.collection.save(doc, *arg, **kw)
-
