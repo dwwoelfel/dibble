@@ -5,22 +5,27 @@ from .update import Update
 
 
 class ModelError(Exception):
+    """base class for all model related errors"""
     pass
 
 
 class UnboundModelError(ModelError):
+    """attempted usage of model that was not bound to a mapper"""
     pass
 
 
 class UnsavedModelError(ModelError):
+    """raised when reload was called for an unsaved model"""
     pass
 
 
 class UndefinedFieldError(KeyError):
+    """raised when trying to access an undefined field"""
     pass
 
 
 class ModelBase(object):
+    """base class for all dibble models"""
     _id = fields.Field()
 
     def __init__(self, *arg, **kw):
@@ -64,12 +69,20 @@ class ModelBase(object):
 
     @property
     def is_new(self):
+        """returns whether the model was saved before or is completely new"""
         return not self._id.defined
 
     def bind(self, mapper):
+        """bind this model to a :class:`~dibble.mapper.ModelMapper`. Usually this is handled by the mapper when it
+        returns a model
+        """
         self._mapper = mapper
 
     def reload(self, force=True):
+        """reload model from the database if necessary
+
+         :param force: reload model even if unnecessary
+         """
         if self._requires_reload or force:
             if not self._mapper:
                 raise UnboundModelError()
@@ -87,6 +100,9 @@ class ModelBase(object):
             self._requires_reload = False
 
     def save(self, *arg, **kw):
+        """Save model data to database. Requires the model to be bound to a mapper first. Additional arguments
+        will be passed to :meth:`~dibble.mapper.ModelMapper.save` method of the mapper.
+        """
         if not self._mapper:
             raise UnboundModelError()
 
@@ -122,4 +138,9 @@ class ModelBase(object):
 
 
 class Model(ModelBase):
+    """A Model describes the structure of a MongoDB document. It consists of :class:`~dibble.field.Field` instances
+    which can then be used to manipulate the document data.
+
+    Models should be defined by inheriting from :class:`~dibble.model.Model` and adding the wanted Fields to the class.
+    """
     pass

@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
 """
+`dibble.operations` contains implementations of MongoDBs atomic update operations as described in
+http://docs.mongodb.org/manual/reference/operator/
 """
 import collections
 import functools
 
 
 class UnknownFieldError(KeyError):
+    """raised by `rename` and `unset` when trying to rename a class member that is not a field"""
     pass
 
 
 class DuplicateFieldError(KeyError):
+    """raised by `rename` when the new field name is already in use"""
     pass
 
 
 def reloading(fn):
+    """decorator that automatically reloads the model if necessary before calling the wrapped method"""
     @functools.wraps(fn)
     def wrapper(self, *arg, **kw):
         self._reload(force=False)
@@ -25,6 +30,10 @@ def reloading(fn):
 class SetMixin(object):
     @reloading
     def set(self, value):
+        """set field to new value
+
+        :param value: new value
+        """
         self._setvalue(value)
         self.model._update.set(self.name, value)
 
@@ -32,6 +41,7 @@ class SetMixin(object):
 class IncrementMixin(object):
     @reloading
     def inc(self, increment):
+        """add `increment` to field value"""
         if self.defined:
             self._setvalue(self._value + increment)
 
@@ -43,6 +53,7 @@ class IncrementMixin(object):
 
 class RenameMixin(object):
     def rename(self, new):
+        """rename field to name given by `new`"""
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
@@ -66,6 +77,7 @@ class RenameMixin(object):
 class UnsetMixin(object):
     @reloading
     def unset(self):
+        """unset this field"""
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
@@ -82,6 +94,7 @@ class UnsetMixin(object):
 class PushMixin(object):
     @reloading
     def push(self, value):
+        """append `value` to the current value of the field. Will fail if current field value is not a list."""
         if self.defined:
             self._setvalue(self._value + [value])
 
@@ -94,6 +107,7 @@ class PushMixin(object):
 class PushAllMixin(object):
     @reloading
     def push_all(self, values):
+        """append all values to the current value of the field. Will fail is current field value is not a list"""
         if self.defined:
             self._setvalue(self._value + values)
 
@@ -106,6 +120,9 @@ class PushAllMixin(object):
 class AddToSetMixin(object):
     @reloading
     def add_to_set(self, value):
+        """append value to the current value of the field if it is not already in the list. Will fail is current field
+        value is not a list
+        """
         newvalue = (self._value[:] if self.defined else [])
 
         if isinstance(value, collections.Mapping) and ('$each' in value):
@@ -124,6 +141,10 @@ class AddToSetMixin(object):
 class PopMixin(object):
     @reloading
     def pop(self, first=False):
+        """remove last (or first) item from current field value list. Will fail is current field value is not a list.
+
+        :param first: remove first item instead of last
+        """
         if first:
             self._setvalue(self._value[1:])
 
@@ -136,6 +157,7 @@ class PopMixin(object):
 class PullMixin(object):
     @reloading
     def pull(self, value):
+        """remove an item by `value` from current field value list. Will fail is current field value is not a list."""
         if isinstance(value, dict):
             raise NotImplementedError('using pull() with a match criteria is not supported')
 
@@ -148,5 +170,7 @@ class PullMixin(object):
 class PullAllMixin(object):
     @reloading
     def pull_all(self, values):
+        """remove each item in `values` from current field value list. Will fail is current field value is not a
+        list."""
         self._setvalue([x for x in self._value if (x not in values)])
         self.model._update.pullAll(self.name, values)

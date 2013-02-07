@@ -7,16 +7,23 @@ from dibble.operations import AddToSetMixin, PopMixin, PullMixin, PullAllMixin
 
 
 class InvalidatedSubfieldError(Exception):
+    """
+    Error raised when using a Subfield that has been invalidated by updates to parent Fields
+    """
     pass
 
 
-# used for undefined defaults and initial values
+#: used for undefined defaults and initial values
 undefined = type('Undefined', (object, ), {'__nonzero__': lambda s: False})()
-# used for unknown values in reset-calls
+#: used for unknown values in reset-calls
 unknown = type('Unknown', (object, ), {'__nonzero__': lambda s: False})()
 
 
 class FieldMeta(type):
+    """
+    MetaClass of BaseField class. Ensures that all BaseField instances are turned into UnboundField instances which
+    are later used by the instance of :class:`dibble.model.Model` and bound to it.
+    """
     def __call__(cls, *arg, **kw):
         if 'model' in kw:
             return type.__call__(cls, *arg, **kw)
@@ -25,6 +32,12 @@ class FieldMeta(type):
 
 
 class UnboundField(object):
+    """
+    All Fields are replaced by :class:`UnboundField` instances by the :class:`FieldMeta` MetaClass.
+    A :class:`UnboundField` is not usable for anything until bind() was called with a Model instance.
+    This is used so that :class:`Field` instances get a reference to their associated :class:`dibble.model.Model`
+    instance.
+    """
     def __init__(self, field_class, *arg, **kw):
         self.field_class = field_class
         self.arg = arg
@@ -35,6 +48,9 @@ class UnboundField(object):
 
 
 class BaseField(object):
+    """Provides a low-level API for access and manipulation of the field values.
+    Handles default and initial values, field name and the :class:`dibble.model.Model` reference.
+    """
     __metaclass__ = FieldMeta
 
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
@@ -49,24 +65,33 @@ class BaseField(object):
 
     @property
     def name(self):
+        """name (document key) of this Field"""
         return self._name
 
     @property
     def defined(self):
+        """True if this Field was assigned a value"""
         return (self._value is not undefined)
 
     @property
     def default(self):
+        """default value of this Field"""
         return (self._default() if isinstance(self._default, collections.Callable) else self._default)
 
     @property
     def value(self):
+        """current value of this Field"""
         if self._name != '_id':
             self._reload(force=False)
 
         return (self._value if self.defined else None)
 
     def reset(self, value=unknown):
+        """reset field to it's initial value or default value if no initial value was given. Can also be used to
+        reset the field to a specified value that will be used as the new initial value for this field.
+
+        :param value: new initial value of field
+        """
         if value is unknown:
             self._value = (self.initial if self.initial is not undefined else self.default)
             self.model._update.drop_field(self.name)
@@ -81,6 +106,9 @@ class BaseField(object):
 
 class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin,
             PopMixin, PullMixin, PullAllMixin):
+    """:class:`Field` combines the low-level API provided by :class:`BaseField` with the higher-level operations from
+    :mod:`dibble.operations`.
+    """
     def __init__(self, default=undefined, name=None, initial=undefined, model=None):
         super(Field, self).__init__(default, name, initial, model)
         self._subfields = {}
@@ -116,7 +144,10 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
         if value is not unknown:
             self._reset_subfields()
 
+    reset.__doc__ = BaseField.reset.__doc__
+
     def subfield(self, key):
+        """get a :class:`Subfield` for the given key"""
         if key not in self._subfields:
             sf = Subfield(parent=self)
 
@@ -142,8 +173,17 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
     def __getitem__(self, item):
         return self.subfield(item)
 
+    __getitem__.__doc__ = subfield.__doc__
+
 
 class Subfield(Field):
+    """Subfields can be used to access and manipulate nested documents. It supports the full set of the Field API.
+
+    Example usage::
+
+        subfield = field['subfield']
+        subfield.set('foobar')
+    """
     def __init__(self, default=undefined, name=None, initial=undefined, model=None, parent=None):
         super(Subfield, self).__init__(default=default, name=name, initial=initial, model=model)
         self.parent = parent
@@ -154,6 +194,7 @@ class Subfield(Field):
 
     @property
     def parents(self):
+        """get list of parent fields of this subfield"""
         parentlist = []
         field = self.parent
 
@@ -188,6 +229,7 @@ class Subfield(Field):
 
     @property
     def value(self):
+        """current value of this subfield"""
         if self.parent is None:
             raise InvalidatedSubfieldError('Subfield {0!r} was invalidated by an update to it\'s '
                                            'parent Field.'.format(self._name))
