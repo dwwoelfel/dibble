@@ -113,7 +113,6 @@ class ModelBase(object):
             doc = dict(self)
 
             if '_id' in kw:
-                #TODO: Test
                 doc['_id'] = kw.pop('_id')
 
             kw['safe'] = True
