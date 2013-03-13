@@ -377,3 +377,18 @@ def test_modelmapper_unsafe_update():
 
     expected = {'foo': 'bar', 'counter': 42}
     assert_dict_contains_subset(expected, dict(m))
+
+
+@with_setup(setup_db)
+def test_subfield_invalidate():
+    db = get_db()
+    mapper = dibble.mapper.ModelMapper(UserModel, db.subfieldtest)
+
+    m = mapper({'bar': 'baz'})
+    m.save()
+    m.name.set({'firstname': 'foo'})
+    sf = m.name['firstname']
+
+    m.reload()
+    m.name.set({'firstname': 'bar'})
+    m.save()
