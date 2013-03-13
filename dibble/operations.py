@@ -54,12 +54,9 @@ class IncrementMixin(object):
 class RenameMixin(object):
     def rename(self, new):
         """rename field to name given by `new`"""
-        # TODO: this is a relatively naive implementation, extend if more is needed
-        import dibble.fields
-
         f = getattr(self._model, self.name, None)
 
-        if isinstance(f, dibble.fields.Field):
+        if f is not None:
             if hasattr(self._model, new):
                 raise DuplicateFieldError('Field {0!r} is already present on Model'.format(new))
 
@@ -78,13 +75,10 @@ class UnsetMixin(object):
     @reloading
     def unset(self):
         """unset this field"""
-        # TODO: this is a relatively naive implementation, extend if more is needed
-        import dibble.fields
-
         f = getattr(self._model, self.name, None)
 
-        if isinstance(f, dibble.fields.Field):
-            self._setvalue(dibble.fields.undefined)
+        if f is not None:
+            self._undefine()
             self._model._update.unset(self.name)
 
         else:

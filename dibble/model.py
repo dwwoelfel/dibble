@@ -56,6 +56,32 @@ class ModelBase(object):
             if field.defined:
                 yield (name, field.value)
 
+    def __delattr__(self, item):
+        if item in self._fields:
+            del self._fields[item]
+            setattr(self, item, None)
+
+        else:
+            super(ModelBase, self).__delattr__(item)
+
+    def __setattr__(self, key, value):
+        if isinstance(value, fields.BaseField) and key not in self._fields:
+            self._fields[key] = value
+
+        elif isinstance(value, fields.UnboundField):
+            value = value.bind(key, self)
+            self._fields[key] = value
+
+        super(ModelBase, self).__setattr__(key, value)
+
+    def __getattribute__(self, item):
+        v = super(ModelBase, self).__getattribute__(item)
+
+        if v is None and isinstance(getattr(self.__class__, item, None), fields.UnboundField):
+            raise AttributeError('{0!r} object has no attribute {1!r}'.format(type(self), item))
+
+        return v
+
     def __getitem__(self, key):
         field = self._fields[key]
 

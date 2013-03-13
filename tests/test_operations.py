@@ -52,8 +52,7 @@ def test_rename():
     eq_(m.field2.name, 'field2')
     assert m.field2 is f
 
-    # FIXME: delattr makes the unbound field visible again, assertion will fail until this is fixed
-    #assert not hasattr(m, 'field1')
+    assert not hasattr(m, 'field1')
 
 
 @raises(dibble.operations.DuplicateFieldError)

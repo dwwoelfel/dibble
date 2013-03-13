@@ -103,6 +103,9 @@ class BaseField(object):
             self.initial = value
             self.reset()
 
+    def _undefine(self):
+        self._setvalue(undefined)
+
     def _reload(self, *arg, **kw):
         self._model.reload(*arg, **kw)
 

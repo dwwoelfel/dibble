@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dibble.fields
 import dibble.model
-from nose.tools import raises, eq_, assert_in, assert_false
+from nose.tools import raises, eq_, assert_in, assert_false, assert_true
 
 
 class SimpleModel(dibble.model.Model):
@@ -166,6 +166,45 @@ def test_getitem_keyerror():
 def test_getitem_undefined_field():
     m = SimpleModel()
     m['xint']
+
+
+@raises(AttributeError)
+def test_getattr_undefined():
+    m = SimpleModel()
+    m.foobarbaz
+
+
+def test_getattr_defined():
+    m = SimpleModel()
+    assert_true(m.xint, dibble.fields.Field)
+
+
+@raises(AttributeError)
+def test_delattr_undefined():
+    m = SimpleModel()
+    del m.foobarbaz
+
+
+def test_delattr_defined_field():
+    m = SimpleModel()
+    del m.xint
+    assert_false(hasattr(m, 'xint'))
+
+
+def test_delattr_defined():
+    m = SimpleModel()
+    del m._mapper
+    assert_false(hasattr(m, '_mapper'))
+
+
+def test_field_add():
+    m = SimpleModel()
+    f = dibble.fields.Field()
+    m.newfield = f
+
+    assert_true(hasattr(m, 'newfield'))
+    print m.newfield
+    assert_true(isinstance(m.newfield, dibble.fields.Field))
 
 
 @raises(dibble.model.UnboundModelError)
