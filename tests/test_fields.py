@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import uuid
-from nose.tools import eq_, assert_not_equal
+from nose.tools import eq_, assert_not_equal, raises
 import dibble.fields
 import dibble.model
 
@@ -19,6 +19,13 @@ def test_bind():
     f = dibble.fields.Field()
     bound = f.bind(name='foo', model=fakemodel)
     assert bound.model is fakemodel
+
+
+@raises(ValueError)
+def test_bind_none_model():
+    f = dibble.fields.Field()
+    bound = f.bind(name='foo', model=None)
+
 
 
 def test_field_call():

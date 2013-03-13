@@ -26,6 +26,9 @@ class FieldMeta(type):
     """
     def __call__(cls, *arg, **kw):
         if 'model' in kw:
+            if kw['model'] is None:
+                raise ValueError('model cannot be None')
+
             return type.__call__(cls, *arg, **kw)
 
         return UnboundField(cls, *arg, **kw)
