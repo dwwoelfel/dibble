@@ -14,14 +14,12 @@ class SimpleModel(dibble.model.Model):
     xdict = dibble.fields.Field()
 
 
-
 class PropertyModel(dibble.model.Model):
     @property
     def prop(self):
         return self.zfield['subfield'].value
 
     zfield = dibble.fields.Field()
-
 
 
 def test_initialization():
@@ -54,7 +52,6 @@ def test_inheritance():
         yunicode = dibble.fields.Field()
         ylist = dibble.fields.Field()
         ydict = dibble.fields.Field()
-
 
     m = InheritedModel()
 

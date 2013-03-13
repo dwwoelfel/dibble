@@ -6,6 +6,7 @@ import dibble.mapper
 from nose import with_setup
 from nose.tools import eq_, assert_dict_contains_subset, raises, assert_dict_equal
 
+
 DBNAME = 'dibbletest'
 
 
@@ -91,7 +92,6 @@ def test_find_generator():
     eq_(db_user['name'], dummy_user['name'])
 
 
-
 @with_setup(setup_db)
 def test_find_getitem():
     users = get_mapper()
@@ -111,7 +111,6 @@ def test_find_getitem():
     eq_(db_user['_id'], uid)
     eq_(db_user.name.value, dummy_user['name'])
     eq_(db_user['name'], dummy_user['name'])
-
 
 
 @with_setup(setup_db)
@@ -159,13 +158,11 @@ def test_modelmapper_model_reload():
     assert_dict_contains_subset(expected, dict(user))
 
 
-
 @with_setup(setup_db)
 @raises(dibble.model.UnboundModelError)
 def test_modelmapper_model_reload_unbound():
     user = AdvancedUserModel()
     user.reload()
-
 
 
 @with_setup(setup_db)
@@ -175,7 +172,6 @@ def test_modelmapper_model_reload_unsaved():
     users = dibble.mapper.ModelMapper(AdvancedUserModel, db.user)
     user = users()
     user.reload()
-
 
 
 @with_setup(setup_db)

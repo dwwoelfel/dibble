@@ -27,7 +27,6 @@ def test_bind_none_model():
     bound = f.bind(name='foo', model=None)
 
 
-
 def test_field_call():
     fakemodel = FakeModel()
     f = dibble.fields.Field()

@@ -5,8 +5,8 @@ import dibble.model
 import dibble.fields
 import pymongo
 
-DBNAME = 'dibbletest'
 
+DBNAME = 'dibbletest'
 
 
 class TestModel(dibble.model.Model):
@@ -31,13 +31,11 @@ def setup_db():
     #db.connection.drop_database(DBNAME)
 
 
-
 def test_subfield_access():
     tm = TestModel()
     sf = tm.foo['bar']
 
     eq_(sf.name, 'foo.bar')
-
 
 
 def test_subfield_operation():
@@ -49,14 +47,12 @@ def test_subfield_operation():
     assert_dict_equal(dict(tm._update), {'$set': {'foo.bar': 'fumm'}})
 
 
-
 def test_subfield_initialize():
     tm = TestModel({'foo': {'bar': 'baz'}})
     sf = tm.foo['bar']
 
     eq_(sf.value, 'baz')
     assert_false(tm.foo['baz'].defined)
-
 
 
 def test_subfield_update():
@@ -71,13 +67,11 @@ def test_subfield_update():
     assert_dict_equal(tm.foo.value, {'bar': 'fnorb'})
 
 
-
 def test_nested_subfield_access():
     tm = TestModel()
     nsf = tm.foo['bar']['baz']
 
     eq_(nsf.name, 'foo.bar.baz')
-
 
 
 def test_nested_subfield_operation():
@@ -89,13 +83,11 @@ def test_nested_subfield_operation():
     assert_dict_equal(dict(tm._update), {'$set': {'foo.bar.baz': 'fumm'}})
 
 
-
 def test_nested_subfield_initialize():
     tm = TestModel({'foo': {'bar': {'baz': 'fumm'}}})
     nsf = tm.foo['bar']['baz']
 
     eq_(nsf.value, 'fumm')
-
 
 
 def test_nested_subfield_update():
@@ -112,7 +104,6 @@ def test_nested_subfield_update():
     eq_(nsf.value, 'ding')
     assert_dict_equal(tm.foo['bar'].value, {'baz': 'ding'})
     assert_dict_equal(tm.foo.value, {'bar': {'baz': 'ding'}})
-
 
 
 @with_setup(setup_db)
@@ -149,7 +140,6 @@ def test_subfield_mapper():
     assert_dict_contains_subset(expected, res)
 
 
-
 @raises(dibble.fields.InvalidatedSubfieldError)
 def test_subfield_invalidation():
     tm = TestModel()
@@ -158,7 +148,6 @@ def test_subfield_invalidation():
     sf.set('fumm')
     tm.foo.set('bar')
     sf.set('baz')
-
 
 
 @raises(dibble.fields.InvalidatedSubfieldError)
