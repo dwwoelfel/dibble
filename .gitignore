@@ -1,0 +1,5 @@
+*.egg-info
+*.egg
+.coverage
+.tox
+docs/_build
