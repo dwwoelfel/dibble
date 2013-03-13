@@ -179,3 +179,9 @@ def test_model_with_properties():
 
     # should not trigger errors
     eq_(m.prop, None)
+
+
+def test_model_repr():
+    m = SimpleModel({'xbool': True, 'xfloat': 0.1})
+
+    eq_(repr(m), "<SimpleModel({'xfloat': 0.1, 'xbool': True})>")

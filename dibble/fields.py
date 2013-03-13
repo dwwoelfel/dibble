@@ -124,7 +124,7 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
         if self._subfields:
             if self._value is undefined:
                 for field in self._subfields.values():
-                    field.reset(undefined)
+                    field._invalidate()
 
             elif isinstance(self._value, collections.Mapping):
                 for key, field in self._subfields.items():

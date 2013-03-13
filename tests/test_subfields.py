@@ -141,13 +141,21 @@ def test_subfield_mapper():
 
 
 @raises(dibble.fields.InvalidatedSubfieldError)
-def test_subfield_invalidation():
+def test_subfield_invalidated_value():
     tm = TestModel()
     sf = tm.foo['bar']
 
-    sf.set('fumm')
     tm.foo.set('bar')
-    sf.set('baz')
+    sf.value
+
+
+@raises(dibble.fields.InvalidatedSubfieldError)
+def test_subfield_invalidated_reloading():
+    tm = TestModel()
+    sf = tm.foo['bar']
+
+    tm.foo.set('bar')
+    sf.set('fnorb')
 
 
 @raises(dibble.fields.InvalidatedSubfieldError)
@@ -161,3 +169,20 @@ def test_subfield_invalidation_dict():
 
     tm.foo.set({'fnorb': None})
     sf.set('baz')
+
+
+@raises(dibble.fields.InvalidatedSubfieldError)
+def test_subfield_reset_invalidate():
+    tm = TestModel({'foo': {'bar': 'baz'}})
+    sf = tm.foo['bar']
+
+    sf.set('fnorb')
+    tm.foo.reset(dibble.fields.undefined)
+
+    sf.value
+
+
+@raises(ValueError)
+def test_subfield_of_simple_value():
+    tm = TestModel({'foo': 'bar'})
+    sf = tm.foo['baz']
