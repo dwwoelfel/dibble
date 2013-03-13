@@ -35,7 +35,7 @@ class SetMixin(object):
         :param value: new value
         """
         self._setvalue(value)
-        self.model._update.set(self.name, value)
+        self._model._update.set(self.name, value)
 
 
 class IncrementMixin(object):
@@ -48,7 +48,7 @@ class IncrementMixin(object):
         else:
             self._setvalue(increment)
 
-        self.model._update.inc(self.name, increment)
+        self._model._update.inc(self.name, increment)
 
 
 class RenameMixin(object):
@@ -57,18 +57,18 @@ class RenameMixin(object):
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
-        f = getattr(self.model, self.name, None)
+        f = getattr(self._model, self.name, None)
 
         if isinstance(f, dibble.fields.Field):
-            if hasattr(self.model, new):
+            if hasattr(self._model, new):
                 raise DuplicateFieldError('Field {0!r} is already present on Model'.format(new))
 
             else:
                 oldname = self.name
-                delattr(self.model, self.name)
-                setattr(self.model, new, f)
+                delattr(self._model, self.name)
+                setattr(self._model, new, f)
                 f._name = new
-                self.model._update.rename(oldname, new)
+                self._model._update.rename(oldname, new)
 
         else:
             raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))
@@ -81,11 +81,11 @@ class UnsetMixin(object):
         # TODO: this is a relatively naive implementation, extend if more is needed
         import dibble.fields
 
-        f = getattr(self.model, self.name, None)
+        f = getattr(self._model, self.name, None)
 
         if isinstance(f, dibble.fields.Field):
             self._setvalue(dibble.fields.undefined)
-            self.model._update.unset(self.name)
+            self._model._update.unset(self.name)
 
         else:
             raise UnknownFieldError('Unknown Field: {0!r}'.format(self.name))
@@ -101,7 +101,7 @@ class PushMixin(object):
         else:
             self._setvalue([value])
 
-        self.model._update.push(self.name, value)
+        self._model._update.push(self.name, value)
 
 
 class PushAllMixin(object):
@@ -114,7 +114,7 @@ class PushAllMixin(object):
         else:
             self._setvalue(values[:])
 
-        self.model._update.pushAll(self.name, values)
+        self._model._update.pushAll(self.name, values)
 
 
 class AddToSetMixin(object):
@@ -135,7 +135,7 @@ class AddToSetMixin(object):
                 newvalue.append(value)
 
         self._setvalue(newvalue)
-        self.model._update.addToSet(self.name, value)
+        self._model._update.addToSet(self.name, value)
 
 
 class PopMixin(object):
@@ -151,7 +151,7 @@ class PopMixin(object):
         else:
             self._setvalue(self._value[:-1])
 
-        self.model._update.pop(self.name, first)
+        self._model._update.pop(self.name, first)
 
 
 class PullMixin(object):
@@ -164,7 +164,7 @@ class PullMixin(object):
         elif self._value:
             self._setvalue([x for x in self._value if x != value])
 
-        self.model._update.pull(self.name, value)
+        self._model._update.pull(self.name, value)
 
 
 class PullAllMixin(object):
@@ -173,4 +173,4 @@ class PullAllMixin(object):
         """remove each item in `values` from current field value list. Will fail is current field value is not a
         list."""
         self._setvalue([x for x in self._value if (x not in values)])
-        self.model._update.pullAll(self.name, values)
+        self._model._update.pullAll(self.name, values)

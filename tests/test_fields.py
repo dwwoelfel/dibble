@@ -18,7 +18,7 @@ def test_bind():
     fakemodel = FakeModel()
     f = dibble.fields.Field()
     bound = f.bind(name='foo', model=fakemodel)
-    assert bound.model is fakemodel
+    assert bound._model is fakemodel
 
 
 @raises(ValueError)

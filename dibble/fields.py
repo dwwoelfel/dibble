@@ -25,8 +25,8 @@ class FieldMeta(type):
     are later used by the instance of :class:`dibble.model.Model` and bound to it.
     """
     def __call__(cls, *arg, **kw):
-        if 'model' in kw:
-            if kw['model'] is None:
+        if '_model' in kw:
+            if kw['_model'] is None:
                 raise ValueError('model cannot be None')
 
             return type.__call__(cls, *arg, **kw)
@@ -47,7 +47,7 @@ class UnboundField(object):
         self.kw = kw
 
     def bind(self, name, model, initial=undefined):
-        return self.field_class(name=name, model=model, initial=initial, *self.arg, **self.kw)
+        return self.field_class(_name=name, _model=model, _initial=initial, *self.arg, **self.kw)
 
 
 class BaseField(object):
@@ -56,12 +56,12 @@ class BaseField(object):
     """
     __metaclass__ = FieldMeta
 
-    def __init__(self, default=undefined, name=None, initial=undefined, model=None):
+    def __init__(self, default=undefined, _name=None, _initial=undefined, _model=undefined):
         self._default = default
-        self._value = (initial if initial is not undefined else self.default)
-        self._name = name
-        self.model = model
-        self.initial = initial
+        self._value = (_initial if _initial is not undefined else self.default)
+        self._name = _name
+        self._model = _model
+        self.initial = _initial
 
     def __call__(self):
         return self.value
@@ -97,14 +97,14 @@ class BaseField(object):
         """
         if value is unknown:
             self._value = (self.initial if self.initial is not undefined else self.default)
-            self.model._update.drop_field(self.name)
+            self._model._update.drop_field(self.name)
 
         else:
             self.initial = value
             self.reset()
 
     def _reload(self, *arg, **kw):
-        self.model.reload(*arg, **kw)
+        self._model.reload(*arg, **kw)
 
 
 class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMixin, PushAllMixin, AddToSetMixin,
@@ -112,8 +112,8 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
     """:class:`Field` combines the low-level API provided by :class:`BaseField` with the higher-level operations from
     :mod:`dibble.operations`.
     """
-    def __init__(self, default=undefined, name=None, initial=undefined, model=None):
-        super(Field, self).__init__(default, name, initial, model)
+    def __init__(self, default=undefined, _name=None, _initial=undefined, _model=None):
+        super(Field, self).__init__(default, _name, _initial, _model)
         self._subfields = {}
 
     def _setvalue(self, value):
@@ -158,16 +158,16 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
                 if isinstance(self._value, collections.Mapping):
                     if key in self._value:
                         sf_initial = self._value[key]
-                        bsf = sf.bind(key, self.model, initial=sf_initial)
+                        bsf = sf.bind(key, self._model, initial=sf_initial)
 
                     else:
-                        bsf = sf.bind(key, self.model)
+                        bsf = sf.bind(key, self._model)
 
                 else:
                     raise ValueError('Cannot create subfield for {0!r}'.format(self._value))
 
             else:
-                bsf = sf.bind(key, self.model)
+                bsf = sf.bind(key, self._model)
 
             self._subfields[key] = bsf
 
@@ -187,8 +187,8 @@ class Subfield(Field):
         subfield = field['subfield']
         subfield.set('foobar')
     """
-    def __init__(self, default=undefined, name=None, initial=undefined, model=None, parent=None):
-        super(Subfield, self).__init__(default=default, name=name, initial=initial, model=model)
+    def __init__(self, default=undefined, _name=None, _initial=undefined, _model=None, parent=None):
+        super(Subfield, self).__init__(default=default, _name=_name, _initial=_initial, _model=_model)
         self.parent = parent
 
     @property
@@ -228,7 +228,7 @@ class Subfield(Field):
 
     def _invalidate(self):
         self.parent = None
-        self.model = None
+        self._model = None
 
     @property
     def value(self):
