@@ -10,19 +10,11 @@ class ModelCursor(PymongoCursor):
 
     def __getitem__(self, key):
         doc = super(ModelCursor, self).__getitem__(key)
-
-        instance = self.mapper.model(doc)
-        instance.bind(self.mapper)
-
-        return instance
+        return self.mapper(doc)
 
     def next(self):
         doc = super(ModelCursor, self).next()
-
-        instance = self.mapper.model(doc)
-        instance.bind(self.mapper)
-
-        return instance
+        return self.mapper(doc)
 
 
 class ModelMapper(object):
@@ -78,11 +70,7 @@ class ModelMapper(object):
         spec = spec or {}
         doc = self.collection.find_one(spec, *arg, **kw)
 
-        if doc:
-            doc = self.model(doc)
-            doc.bind(self)
-
-        return doc
+        return (self(doc) if doc is not None else None)
 
     def update(self, spec, doc, *arg, **kw):
         """update documents in :attr:`collection` matching query document `spec` with the updates in `doc`.

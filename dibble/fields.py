@@ -125,9 +125,11 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
 
     def _reset_subfields(self):
         if self._subfields:
+            invalidated_subfields = []
             if self._value is undefined:
-                for field in self._subfields.values():
+                for key, field in self._subfields.items():
                     field._invalidate()
+                    invalidated_subfields.append(key)
 
             elif isinstance(self._value, collections.Mapping):
                 for key, field in self._subfields.items():
@@ -137,12 +139,15 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
 
                     else:
                         field._invalidate()
+                        invalidated_subfields.append(key)
 
             else:
-                for field in self._subfields.values():
+                for key, field in self._subfields.items():
                     field._invalidate()
+                    invalidated_subfields.append(key)
 
-                self._subfields.clear()
+            for key in invalidated_subfields:
+                self._subfields.pop(key)
 
     def reset(self, value=unknown):
         super(Field, self).reset(value)
