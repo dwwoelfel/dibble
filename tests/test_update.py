@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nose.tools import raises
+from nose.tools import raises, assert_true, assert_false
 import dibble.update
 
 
@@ -26,3 +26,11 @@ def test_opdict_invalidoperator():
 def test_opdict_update():
     fd = dibble.update.OperatorDict()
     fd.update({'foo': 'bar'})
+
+
+def test_contains():
+    u = dibble.update.Update()
+    u.set('foo', 'bar')
+
+    assert_true('foo' in u)
+    assert_false('bar' in u)
