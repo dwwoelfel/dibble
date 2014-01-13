@@ -103,6 +103,9 @@ class BaseField(object):
             self.initial = value
             self.reset()
 
+    def _setvalue(self, value):
+        self._value = value
+
     def _undefine(self):
         self._setvalue(undefined)
 
@@ -120,7 +123,7 @@ class Field(BaseField, SetMixin, IncrementMixin, RenameMixin, UnsetMixin, PushMi
         self._subfields = {}
 
     def _setvalue(self, value):
-        self._value = value
+        super(Field, self)._setvalue(value)
         self._reset_subfields()
 
     def _reset_subfields(self):

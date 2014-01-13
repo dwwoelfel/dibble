@@ -45,6 +45,9 @@ class Update(object):
     def __iter__(self):
         return self._ops.iteritems()
 
+    def __contains__(self, item):
+        return any(item in fields for _, fields in self._ops.items())
+
     def clear(self):
         self._ops.clear()
 
